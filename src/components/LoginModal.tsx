@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './LoginModal.module.css';
 
 interface LoginModalProps {
@@ -41,9 +42,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </button>
 
                 <div className={styles.logoArea}>
-                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', fontWeight: 800 }}>
-                        <span style={{ color: '#1e293b' }}>Mad</span>
-                        <span style={{ color: '#3b82f6' }}>Jock</span>
+                    <div style={{ position: 'relative', width: '120px', height: '40px', margin: '0 auto' }}>
+                        <Image
+                            src="/madjock-logo.png"
+                            alt="MadJock"
+                            fill
+                            style={{ objectFit: 'contain' }}
+                            priority
+                        />
                     </div>
                 </div>
 

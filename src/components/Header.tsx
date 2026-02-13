@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import styles from './Header.module.css';
@@ -23,9 +24,17 @@ export default function Header() {
             <div className="container">
                 <div className={styles.headerContent}>
                     {/* Logo */}
+                    {/* Logo */}
                     <Link href="/" className={styles.logo}>
-                        <span className={styles.logoText}>Mad</span>
-                        <span className={styles.logoAccent}>Jock</span>
+                        <div style={{ position: 'relative', width: '150px', height: '40px' }}>
+                            <Image
+                                src="/madjock-logo.png"
+                                alt="MadJock Logo"
+                                fill
+                                style={{ objectFit: 'contain', objectPosition: 'left' }}
+                                priority
+                            />
+                        </div>
                     </Link>
 
                     {/* Desktop Navigation */}

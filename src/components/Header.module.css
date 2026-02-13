@@ -20,10 +20,9 @@
 .logo {
     display: flex;
     align-items: center;
-    font-size: var(--font-size-2xl);
-    font-weight: 800;
     text-decoration: none;
     transition: transform var(--transition-base);
+    position: relative;
 }
 
 .logo:hover {

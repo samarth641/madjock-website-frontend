@@ -42,7 +42,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </button>
 
                 <div className={styles.logoArea}>
-                    <div style={{ position: 'relative', width: '120px', height: '40px', margin: '0 auto' }}>
+                    <div className={styles.logoImageContainer}>
                         <Image
                             src="/madjock-logo.png"
                             alt="MadJock"

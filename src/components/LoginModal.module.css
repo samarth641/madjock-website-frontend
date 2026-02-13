@@ -44,6 +44,20 @@
     margin-bottom: 24px;
 }
 
+.logoImageContainer {
+    position: relative;
+    width: 200px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+    .logoImageContainer {
+        width: 150px;
+        height: 50px;
+    }
+}
+
 .titleArea {
     text-align: center;
     margin-bottom: 32px;

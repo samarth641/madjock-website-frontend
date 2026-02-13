@@ -26,7 +26,7 @@ export default function Header() {
                     {/* Logo */}
                     {/* Logo */}
                     <Link href="/" className={styles.logo}>
-                        <div style={{ position: 'relative', width: '150px', height: '40px' }}>
+                        <div className={styles.logoImageContainer}>
                             <Image
                                 src="/madjock-logo.png"
                                 alt="MadJock Logo"

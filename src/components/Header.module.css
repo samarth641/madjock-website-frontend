@@ -25,6 +25,19 @@
     position: relative;
 }
 
+.logoImageContainer {
+    position: relative;
+    width: 200px;
+    height: 60px;
+}
+
+@media (max-width: 768px) {
+    .logoImageContainer {
+        width: 140px;
+        height: 40px;
+    }
+}
+
 .logo:hover {
     transform: scale(1.05);
 }

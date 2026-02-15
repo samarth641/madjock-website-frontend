@@ -7,7 +7,7 @@ import CategoryGrid from '@/components/CategoryGrid';
 import FeaturedBanner from '@/components/FeaturedBanner';
 import BusinessCard from '@/components/BusinessCard';
 import LocationModal from '@/components/LocationModal';
-import { getFeaturedBusinesses, getBusinesses } from '@/lib/api';
+import { getBusinesses } from '@/lib/api';
 import { Business } from '@/types';
 import styles from './page.module.css';
 
@@ -15,18 +15,22 @@ export default function HomePage() {
     const router = useRouter();
     const [displayBusinesses, setDisplayBusinesses] = useState<Business[]>([]);
     const [nearYouBusinesses, setNearYouBusinesses] = useState<Business[]>([]);
+    const [topRatedBusinesses, setTopRatedBusinesses] = useState<Business[]>([]);
     const [loading, setLoading] = useState(true);
     const [userCity, setUserCity] = useState<string>('');
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
     useEffect(() => {
-        // Check for stored location
         const storedCity = localStorage.getItem('userCity');
+        const source = localStorage.getItem('locationSource');
+
         if (storedCity) {
             setUserCity(storedCity);
             loadPageData(storedCity);
-        } else {
-            // Try to use browser geolocation directly
+        }
+
+        // Only auto-detect on refresh if it wasn't a manual choice
+        if (!source || source === 'auto') {
             handleAutoDetect();
         }
     }, []);
@@ -34,19 +38,47 @@ export default function HomePage() {
     const handleAutoDetect = () => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const detectedCity = 'Nagpur';
-                    handleLocationSelect(detectedCity);
+                async (position) => {
+                    try {
+                        const { latitude, longitude } = position.coords;
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+                            {
+                                headers: {
+                                    'Accept-Language': 'en-US',
+                                    'User-Agent': 'Madjock-Website-Frontend'
+                                }
+                            }
+                        );
+                        const data = await response.json();
+                        const city = data.address.city ||
+                            data.address.town ||
+                            data.address.city_district ||
+                            data.address.village ||
+                            data.address.suburb ||
+                            data.address.municipality ||
+                            data.address.state_district ||
+                            'Nagpur';
+
+                        const currentStored = localStorage.getItem('userCity');
+                        // Use 'auto' source for background detection
+                        if (city !== currentStored) {
+                            handleLocationSelect(city, 'auto');
+                        }
+                    } catch (error) {
+                        if (!localStorage.getItem('userCity')) {
+                            handleLocationSelect('Nagpur', 'auto');
+                        }
+                    }
                 },
                 (error) => {
-                    console.error("❌ Geolocation error or denied:", error);
-                    setIsLocationModalOpen(true);
-                    if (!userCity) {
+                    if (!localStorage.getItem('userCity')) {
+                        setIsLocationModalOpen(true);
                         loadPageData('Nagpur');
                     }
                 }
             );
-        } else {
+        } else if (!localStorage.getItem('userCity')) {
             setIsLocationModalOpen(true);
             loadPageData('Nagpur');
         }
@@ -54,18 +86,31 @@ export default function HomePage() {
 
     const loadPageData = async (city: string) => {
         setLoading(true);
-        const [featured, nearYou] = await Promise.all([
-            getFeaturedBusinesses(city),
-            getBusinesses({ city, status: 'approved' })
-        ]);
+        try {
+            const allBusinesses = await getBusinesses({ city, status: 'approved' });
 
-        setDisplayBusinesses(Array.isArray(featured) ? featured : []);
-        setNearYouBusinesses(Array.isArray(nearYou) ? nearYou.slice(0, 6) : []);
-        setLoading(false);
+            // 1. Featured Businesses
+            const featured = allBusinesses.filter(b => b.featured).slice(0, 6);
+            setDisplayBusinesses(featured);
+
+            // 2. Top Rated Businesses (Sorted by rating)
+            const topRated = [...allBusinesses]
+                .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                .slice(0, 6);
+            setTopRatedBusinesses(topRated);
+
+            // 3. Near You (Default list)
+            setNearYouBusinesses(allBusinesses.slice(0, 6));
+        } catch (error) {
+            console.error("Error loading page data:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleLocationSelect = (city: string) => {
+    const handleLocationSelect = (city: string, source: 'auto' | 'manual' = 'manual') => {
         localStorage.setItem('userCity', city);
+        localStorage.setItem('locationSource', source);
         setUserCity(city);
         setIsLocationModalOpen(false);
         loadPageData(city);
@@ -120,8 +165,8 @@ export default function HomePage() {
             ) : displayBusinesses.length > 0 ? (
                 <section className="container">
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Featured Businesses in {userCity}</h2>
-                        <a href={`/businesses?city=${userCity}`} className={styles.viewAll}>
+                        <h2 className={styles.sectionTitle}>Featured Businesses</h2>
+                        <a href={`/businesses?city=${userCity}&featured=true`} className={styles.viewAll}>
                             View All
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <polyline points="9 18 15 12 9 6" />
@@ -136,12 +181,12 @@ export default function HomePage() {
                 </section>
             ) : null}
 
-            {/* Near You Businesses */}
-            {!loading && nearYouBusinesses.length > 0 && (
+            {/* Top Rated Businesses */}
+            {!loading && topRatedBusinesses.length > 0 && (
                 <section className="container">
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Best Rated in {userCity}</h2>
-                        <a href={`/businesses?city=${userCity}`} className={styles.viewAll}>
+                        <h2 className={styles.sectionTitle}>Top Rated Businesses</h2>
+                        <a href={`/businesses?city=${userCity}&sort=rating`} className={styles.viewAll}>
                             View All
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <polyline points="9 18 15 12 9 6" />
@@ -149,16 +194,17 @@ export default function HomePage() {
                         </a>
                     </div>
                     <div className={styles.businessGrid}>
-                        {nearYouBusinesses.map((business, index) => (
-                            <BusinessCard key={business._id || `near-you-${index}`} business={business} />
+                        {topRatedBusinesses.map((business, index) => (
+                            <BusinessCard key={business._id || `top-rated-${index}`} business={business} />
                         ))}
                     </div>
                 </section>
             )}
 
+
             {/* Popular Searches */}
             <section className="container">
-                <h2 className={styles.sectionTitle}>Popular Searches in {userCity}</h2>
+                <h2 className={styles.sectionTitle}>Popular Searches</h2>
                 <div className={styles.popularSearches}>
                     {[
                         'Interior Designers',
@@ -210,6 +256,7 @@ export default function HomePage() {
             <LocationModal
                 isOpen={isLocationModalOpen}
                 onSelect={handleLocationSelect}
+                onClose={() => setIsLocationModalOpen(false)}
             />
         </div>
     );

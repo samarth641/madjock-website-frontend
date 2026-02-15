@@ -24,8 +24,22 @@ export interface Business {
     banner?: string;
     selfie?: string;
     status: 'pending' | 'approved' | 'rejected';
+    featured?: boolean;
+    rating?: number;
     salesPersonId?: string;
     salesPersonUserId?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Slider {
+    _id: string;
+    title: string;
+    imageUrl: string;
+    description?: string;
+    link?: string;
+    status: 'active' | 'inactive';
+    order: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -35,6 +49,7 @@ export interface Category {
     name: string;
     description?: string;
     icon?: string;
+    featured?: boolean;
 }
 
 export interface Service {

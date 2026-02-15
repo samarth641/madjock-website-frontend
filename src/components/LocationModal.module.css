@@ -26,6 +26,27 @@
     animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.closeBtn:hover {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
 .header {
     text-align: center;
     margin-bottom: 32px;
@@ -171,6 +192,17 @@
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+.debugCoords {
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #3b82f6;
+    text-align: center;
+    background: #eff6ff;
+    padding: 6px;
+    border-radius: 6px;
 }
 
 @media (max-width: 480px) {

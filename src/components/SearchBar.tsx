@@ -36,7 +36,7 @@ export default function SearchBar({ onSearch, initialLocation = '' }: SearchBarP
                     </svg>
                     <input
                         type="text"
-                        placeholder="Location (e.g., Mumbai, Nagpur)"
+                        placeholder="Location (e.g., Mumbai, Bangalore)"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         className={styles.input}

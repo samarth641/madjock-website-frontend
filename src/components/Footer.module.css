@@ -56,6 +56,16 @@
     margin: 0;
 }
 
+.footerLink {
+    color: var(--color-gray-500);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footerLink:hover {
+    color: var(--color-primary);
+}
+
 @media (max-width: 768px) {
     .footer {
         padding: var(--spacing-8) 0 var(--spacing-4) 0;

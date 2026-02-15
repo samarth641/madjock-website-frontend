@@ -50,6 +50,10 @@ export function transformBusinessData(apiData: any): Business {
         // Status - use top-level status, convert to lowercase
         status: (apiData.status || data.status || 'pending').toLowerCase() as 'pending' | 'approved' | 'rejected',
 
+        // New fields
+        featured: data.featured === true || data.featured === 'true' || apiData.featured === true || apiData.featured === 'true',
+        rating: parseFloat(data.rating || apiData.rating) || 0,
+
         // Sales person info
         salesPersonId: data.assignedSalesPersonId || data.userId || '',
         salesPersonUserId: data.assignedSalesPersonUserId || data.uid || '',

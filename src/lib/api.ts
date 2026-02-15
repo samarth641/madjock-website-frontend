@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Business, Category, Service, SearchParams } from '@/types';
+import { Business, Category, Service, SearchParams, Slider } from '@/types';
 import { mockBusinesses, mockCategories, mockServices } from './mockData';
 import { transformBusinessArray } from './transformers';
 
@@ -12,6 +12,17 @@ const apiClient = axios.create({
     },
     timeout: 5000,
 });
+
+// Slider APIs
+export const getActiveSliders = async (): Promise<Slider[]> => {
+    try {
+        const response = await apiClient.get('/api/sliders/active');
+        return response.data.data || [];
+    } catch (error) {
+        console.error('❌ Error fetching sliders:', error);
+        return [];
+    }
+};
 
 // Business APIs
 export const getBusinesses = async (params?: SearchParams): Promise<Business[]> => {

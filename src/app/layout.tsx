@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     keywords: 'business directory, local services, restaurants, hotels, beauty spa, education, healthcare',
 };
 
+import NavbarWrapper from '@/components/NavbarWrapper';
+import { AuthProvider } from '@/context/AuthContext';
+
 export default function RootLayout({
     children,
 }: {
@@ -17,9 +20,11 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <Header />
-                <main>{children}</main>
-                <Footer />
+                <AuthProvider>
+                    <NavbarWrapper />
+                    <main>{children}</main>
+                    <Footer />
+                </AuthProvider>
             </body>
         </html>
     );

@@ -5,12 +5,13 @@ import styles from './LocationModal.module.css';
 
 interface LocationModalProps {
     isOpen: boolean;
-    onSelect: (city: string) => void;
+    onSelect: (city: string, source: 'auto' | 'manual') => void;
+    onClose: () => void;
 }
 
 const POPULAR_CITIES = ['Nagpur', 'Mumbai', 'Pune', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad'];
 
-export default function LocationModal({ isOpen, onSelect }: LocationModalProps) {
+export default function LocationModal({ isOpen, onSelect, onClose }: LocationModalProps) {
     const [search, setSearch] = useState('');
     const [detecting, setDetecting] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -35,23 +36,40 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
             navigator.geolocation.getCurrentPosition(async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    // Use a reverse geocoding API or a simple mock since we don't have a key
-                    // For now, let's assume we detected 'Nagpur' for demo if it's successful
-                    // In a real app, you'd call a geocoding service here
-                    console.log(`📍 Detected coordinates: ${latitude}, ${longitude}`);
 
-                    // Mocking detection success
-                    setTimeout(() => {
-                        onSelect('Nagpur');
-                        setDetecting(false);
-                    }, 1000);
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+                        {
+                            headers: {
+                                'Accept-Language': 'en-US',
+                                'User-Agent': 'Madjock-Website-Frontend'
+                            }
+                        }
+                    );
+                    const data = await response.json();
+
+                    // Nominatim returns various fields. We try to find the most specific city-like name.
+                    const city = data.address.city ||
+                        data.address.town ||
+                        data.address.city_district ||
+                        data.address.village ||
+                        data.address.suburb ||
+                        data.address.municipality ||
+                        data.address.state_district ||
+                        data.address.county ||
+                        data.address.state;
+
+                    if (city) {
+                        onSelect(city, 'auto');
+                    } else {
+                        onSelect('Nagpur', 'auto');
+                    }
+                    setDetecting(false);
                 } catch (error) {
-                    console.error("❌ Error detecting location:", error);
-                    alert("Could not detect your exact location. Please select manually.");
+                    onSelect('Nagpur', 'auto');
                     setDetecting(false);
                 }
             }, (error) => {
-                console.error("❌ Geolocation permission denied:", error);
                 alert("Location permission denied. Please select your city manually.");
                 setDetecting(false);
             });
@@ -64,13 +82,18 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (search.trim()) {
-            onSelect(search.trim());
+            onSelect(search.trim(), 'manual');
         }
     };
 
     return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
+        <div className={styles.modalOverlay} onClick={onClose}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
                 <div className={styles.header}>
                     <div className={styles.iconWrapper}>
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,7 +130,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                         <input
                             type="text"
                             className={styles.input}
-                            placeholder="Type your city manually (e.g. Nagpur)"
+                            placeholder="Type your city manually (e.g. Mumbai, Bangalore)"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -121,7 +144,7 @@ export default function LocationModal({ isOpen, onSelect }: LocationModalProps) 
                             <button
                                 key={city}
                                 className={styles.cityBtn}
-                                onClick={() => onSelect(city)}
+                                onClick={() => onSelect(city, 'manual')}
                             >
                                 {city}
                             </button>

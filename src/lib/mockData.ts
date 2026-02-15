@@ -30,6 +30,8 @@ export const mockBusinesses: Business[] = [
         logo: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200',
         banner: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200',
         status: 'approved',
+        featured: true,
+        rating: 4.8,
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
     },

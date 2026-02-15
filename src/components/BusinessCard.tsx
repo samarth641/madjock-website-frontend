@@ -28,29 +28,18 @@ export default function BusinessCard({ business }: BusinessCardProps) {
 
             <div className={styles.content}>
                 <h3 className={styles.title}>{business.businessName}</h3>
-                <p className={styles.category}>{business.businessCategory}</p>
-
-                <div className={styles.info}>
-                    <div className={styles.infoItem}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        <span>{business.city}, {business.state}</span>
-                    </div>
-
-                    {business.establishedIn && (
-                        <div className={styles.infoItem}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                <line x1="16" y1="2" x2="16" y2="6" />
-                                <line x1="8" y1="2" x2="8" y2="6" />
-                                <line x1="3" y1="10" x2="21" y2="10" />
+                <div className={styles.categoryRow}>
+                    <p className={styles.category}>{business.businessCategory}</p>
+                    {business.rating !== undefined && (
+                        <div className={styles.rating}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                             </svg>
-                            <span>Est. {business.establishedIn}</span>
+                            <span>{business.rating.toFixed(1)}</span>
                         </div>
                     )}
                 </div>
+
 
                 <p className={styles.description}>{business.description}</p>
 

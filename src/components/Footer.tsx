@@ -60,7 +60,13 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className={styles.bottomBar}>
                     <p className={styles.copyright}>
-                        Copyright © 2008-{new Date().getFullYear()}. All Rights Reserved. Privacy | Terms | Infringement
+                        Copyright © 2008-{new Date().getFullYear()}. All Rights Reserved.
+                        {' || '}
+                        <Link href="/privacy-policy" className={styles.footerLink}>Privacy-Policy</Link>
+                        {' || '}
+                        <Link href="/terms-and-conditions" className={styles.footerLink}>Terms and Conditions</Link>
+                        {' || '}
+                        <Link href="/child-safety" className={styles.footerLink}>Child Safety</Link>
                     </p>
                 </div>
             </div>

@@ -1,0 +1,260 @@
+.aboutPage {
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding-bottom: 80px;
+}
+
+.banner {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.bannerOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200') center/cover;
+    opacity: 0.3;
+}
+
+.bannerTitle {
+    position: relative;
+    z-index: 10;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.contentRow {
+    display: flex;
+    flex-direction: column;
+    margin-top: 60px;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sectionIcon {
+    width: 28px;
+    height: 28px;
+    color: #3b82f6;
+}
+
+.sectionTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.text {
+    line-height: 1.8;
+    color: #4b5563;
+    font-size: 1.1rem;
+    max-width: 800px;
+}
+
+/* Values Grid */
+.valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-top: 10px;
+}
+
+.valueCard {
+    background: #f8fafc;
+    padding: 32px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.valueCard:hover {
+    transform: translateY(-5px);
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: #3b82f6;
+}
+
+.valueIcon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.valueCard h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    color: #1e293b;
+}
+
+.valueCard p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Job List */
+.jobList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.jobItem {
+    background: #ffffff;
+    padding: 24px 32px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.jobItem:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    transform: scale(1.01);
+}
+
+.jobInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.jobHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jobHeader h3 {
+    font-size: 1.2rem;
+    color: #1e293b;
+}
+
+.tag {
+    background: #eff6ff;
+    color: #3b82f6;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.jobMeta {
+    display: flex;
+    gap: 20px;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.jobMeta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.applyBtn {
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.applyBtn:hover {
+    background: #3b82f6;
+    transform: translateX(4px);
+}
+
+/* Process Steps */
+.processSteps {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.step {
+    display: flex;
+    gap: 24px;
+}
+
+.stepNumber {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    line-height: 1;
+}
+
+.stepContent h3 {
+    font-size: 1.15rem;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.stepContent p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Benefits Grid */
+.benefitContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.benefitItem {
+    background: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 12px;
+    color: #1e293b;
+    font-weight: 500;
+    border-left: 4px solid #3b82f6;
+}
+
+@media (max-width: 768px) {
+    .jobItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .applyBtn {
+        width: 100%;
+    }
+
+    .bannerTitle {
+        font-size: 2.25rem;
+    }
+}

@@ -3,7 +3,7 @@ import { Business, Category, Service, SearchParams, Slider } from '@/types';
 import { mockBusinesses, mockCategories, mockServices } from './mockData';
 import { transformBusinessArray } from './transformers';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,

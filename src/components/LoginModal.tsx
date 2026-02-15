@@ -14,7 +14,7 @@ interface LoginModalProps {
 
 type ModalView = 'PHONE_ENTRY' | 'OTP_VERIFY' | 'SIGNUP';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+const BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const { login } = useAuth();

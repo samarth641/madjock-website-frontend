@@ -155,7 +155,7 @@ export default function HomePage() {
             {/* Featured Businesses */}
             {loading ? (
                 <section className="container">
-                    <h2 className={styles.sectionTitle}>Featured Businesses</h2>
+                    <h2 className={styles.sectionTitle}>Featured Businesses {userCity && `in ${userCity}`}</h2>
                     <div className={styles.businessGrid}>
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div key={i} className={styles.skeleton}></div>
@@ -165,7 +165,7 @@ export default function HomePage() {
             ) : displayBusinesses.length > 0 ? (
                 <section className="container">
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Featured Businesses</h2>
+                        <h2 className={styles.sectionTitle}>Featured Businesses {userCity && `in ${userCity}`}</h2>
                         <a href={`/businesses?city=${userCity}&featured=true`} className={styles.viewAll}>
                             View All
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -185,7 +185,7 @@ export default function HomePage() {
             {!loading && topRatedBusinesses.length > 0 && (
                 <section className="container">
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Top Rated Businesses</h2>
+                        <h2 className={styles.sectionTitle}>Top Rated Businesses {userCity && `in ${userCity}`}</h2>
                         <a href={`/businesses?city=${userCity}&sort=rating`} className={styles.viewAll}>
                             View All
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -78,6 +78,16 @@ export interface UserSnippet {
     avatar?: string;
 }
 
+export interface UserProfile extends UserSnippet {
+    bio?: string;
+    location?: string;
+    followersCount: number;
+    followingCount: number;
+    isFollowing?: boolean;
+    postsCount: number;
+    joinedAt?: string;
+}
+
 export interface CommunityComment {
     _id: string;
     user: UserSnippet;

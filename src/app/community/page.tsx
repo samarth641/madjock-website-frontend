@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from './Community.module.css';
+import Link from 'next/link';
+import Image from 'next/image';
 import PostCard from '@/components/community/PostCard';
 import CreatePostWidget from '@/components/community/CreatePostWidget';
 import LoginModal from '@/components/LoginModal';
@@ -100,13 +102,38 @@ export default function CommunityPage() {
                     {loading ? (
                         <div className="text-center py-10 text-gray-500">Loading feed...</div>
                     ) : (
-                        displayPosts.map(post => (
-                            <PostCard
-                                key={post._id}
-                                post={post}
-                                onLoginReq={handleLoginReq}
-                            />
-                        ))
+                        <>
+                            {searchResults && searchResults.users.length > 0 && (
+                                <div className={styles.userSearchSection}>
+                                    <h2 className={styles.feedTitle} style={{ border: 'none', marginBottom: '1rem' }}>People</h2>
+                                    <div className={styles.userResultsGrid}>
+                                        {searchResults.users.map(u => (
+                                            <Link href={`/profile/${u._id}`} key={u._id} className={styles.userResultCard}>
+                                                <Image
+                                                    src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=random`}
+                                                    alt={u.name}
+                                                    width={64}
+                                                    height={64}
+                                                    className={styles.userResultAvatar}
+                                                    unoptimized
+                                                />
+                                                <span className={styles.userResultName}>{u.name}</span>
+                                                <button className={styles.userResultFollowBtn}>View Profile</button>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                    <h2 className={styles.feedTitle} style={{ border: 'none', marginBottom: '1rem' }}>Posts</h2>
+                                </div>
+                            )}
+
+                            {displayPosts.map(post => (
+                                <PostCard
+                                    key={post._id}
+                                    post={post}
+                                    onLoginReq={handleLoginReq}
+                                />
+                            ))}
+                        </>
                     )}
 
                     {!loading && displayPosts.length === 0 && (

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Business, Slider, Category, ApiResponse, SearchParams, Post, UserSnippet, CommunityComment, Poll, Service } from '../types';
+import { Business, Slider, Category, ApiResponse, SearchParams, Post, UserSnippet, CommunityComment, Poll, Service, UserProfile } from '../types';
 
 import { mockBusinesses, mockCategories, mockServices } from './mockData';
 import { transformBusinessArray } from './transformers';
@@ -262,9 +262,9 @@ const transformPost = (data: any): Post => {
     return {
         _id: postId ? String(postId) : '',
         user: {
-            _id: data.userId || 'unknown',
-            name: data.userName || 'Unknown User',
-            avatar: data.profileImageUrl || ''
+            _id: data.userId || (data.user?._id || data.user?.id) || 'unknown',
+            name: data.userName || data.user?.name || 'Unknown User',
+            avatar: data.profileImageUrl || data.user?.avatar || ''
         },
         content: data.text || data.content || '',
         images: data.media?.image ? [data.media.image] : (Array.isArray(data.images) ? data.images : (data.image ? [data.image] : [])),
@@ -423,7 +423,7 @@ export const searchCommunity = async (query: string): Promise<{ posts: Post[]; u
 
 export const getUsers = async (): Promise<UserSnippet[]> => {
     try {
-        const response = await apiClient.get('/api/users/all');
+        const response = await apiClient.get('/api/admin/users/all');
         if (response.data?.success) {
             const rawUsers = response.data.data;
             if (!Array.isArray(rawUsers)) return [];
@@ -444,5 +444,61 @@ export const getUsers = async (): Promise<UserSnippet[]> => {
     } catch (error) {
         console.error('Failed to fetch users', error);
         return [];
+    }
+};
+
+// User Profile & Follow APIs
+export const getUserProfile = async (userId: string, currentUserId?: string): Promise<UserProfile | null> => {
+    try {
+        const response = await apiClient.get(`/api/users/profile/${userId}${currentUserId ? `?currentUserId=${currentUserId}` : ''}`);
+        const u = response.data.data || response.data.user || response.data;
+        if (!u) return null;
+
+        return {
+            _id: u._id || u.id,
+            name: u.userName || u.name || 'User',
+            avatar: u.profileImageUrl || u.avatar || '',
+            bio: u.bio || '',
+            location: u.location || '',
+            followersCount: u.followersCount || 0,
+            followingCount: u.followingCount || 0,
+            isFollowing: u.isFollowing || false,
+            postsCount: u.postsCount || 0,
+            joinedAt: u.createdAt
+        };
+    } catch (error) {
+        console.error(`❌ Error fetching profile for ${userId}:`, error);
+        return null;
+    }
+};
+
+export const getPostsByUserId = async (userId: string): Promise<Post[]> => {
+    try {
+        const response = await apiClient.get(`/api/users/posts/${userId}`);
+        const rawPosts = response.data.data || [];
+        return rawPosts.map(transformPost);
+    } catch (error) {
+        console.error(`❌ Error fetching posts for user ${userId}:`, error);
+        return [];
+    }
+};
+
+export const followUser = async (targetUserId: string, userId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`/api/users/follow/${targetUserId}`, { userId });
+        return response.data.success || false;
+    } catch (error) {
+        console.error(`❌ Error following user ${targetUserId}:`, error);
+        return false;
+    }
+};
+
+export const unfollowUser = async (targetUserId: string, userId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`/api/users/unfollow/${targetUserId}`, { userId });
+        return response.data.success || false;
+    } catch (error) {
+        console.error(`❌ Error unfollowing user ${targetUserId}:`, error);
+        return false;
     }
 };

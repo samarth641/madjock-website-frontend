@@ -23,6 +23,7 @@ export default function PostCard({ post: initialPost, onUpdate: globalUpdate, on
     const [showModal, setShowModal] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
+    const [showTags, setShowTags] = useState(false);
 
     const feelings = [
         { label: 'happy', emoji: '😊' },
@@ -160,17 +161,21 @@ export default function PostCard({ post: initialPost, onUpdate: globalUpdate, on
     return (
         <div className={styles.postCard}>
             <div className={styles.postHeader}>
-                <Image
-                    src={post.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.user?.name || 'User')}&background=random`}
-                    alt={post.user?.name || 'User'}
-                    width={44}
-                    height={44}
-                    className={styles.userAvatar}
-                    unoptimized
-                />
+                <Link href={`/profile/${post.user?._id}`} className={styles.avatarLink}>
+                    <Image
+                        src={post.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.user?.name || 'User')}&background=random`}
+                        alt={post.user?.name || 'User'}
+                        width={44}
+                        height={44}
+                        className={styles.userAvatar}
+                        unoptimized
+                    />
+                </Link>
                 <div className={styles.userInfo}>
                     <div className={styles.userName}>
-                        {post.user?.name || 'Unknown User'}
+                        <Link href={`/profile/${post.user?._id}`} className={styles.nameLink}>
+                            {post.user?.name || 'Unknown User'}
+                        </Link>
                         {post.feeling && (
                             <span style={{ fontWeight: 400, color: '#65676b', fontSize: '0.875rem', marginLeft: '4px' }}>
                                 is feeling {feelings.find(f => f.label === post.feeling)?.emoji} {post.feeling}
@@ -211,6 +216,37 @@ export default function PostCard({ post: initialPost, onUpdate: globalUpdate, on
                             via GIPHY
                         </div>
                     )}
+                    {post.taggedUsers && post.taggedUsers.length > 0 && (
+                        <>
+                            <div
+                                className={styles.tagIconOverlay}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowTags(!showTags);
+                                }}
+                                title="View tagged users"
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                    <path d="M20 17H4V5h16v12zm0-14H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM7 15c0-1.66 1.34-3 3-3s3 1.34 3 3H7zm10-3c0-1.1-.9-2-2-2h-3v4h3c1.1 0 2-.9 2-2z" />
+                                </svg>
+                            </div>
+                            {showTags && (
+                                <div className={styles.tagsListPopup} onClick={(e) => e.stopPropagation()}>
+                                    <div className={styles.tagHeader}>Tagged People</div>
+                                    {post.taggedUsers.map((tagUser) => (
+                                        <Link
+                                            key={tagUser.userId}
+                                            href={`/profile/${tagUser.userId}`}
+                                            className={styles.tagItem}
+                                        >
+                                            <div className={styles.tagItemAvatar} />
+                                            <span>{tagUser.userName}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             )}
 
@@ -222,6 +258,38 @@ export default function PostCard({ post: initialPost, onUpdate: globalUpdate, on
                         controls
                         style={{ background: '#000' }}
                     />
+                    {post.taggedUsers && post.taggedUsers.length > 0 && (
+                        <>
+                            <div
+                                className={styles.tagIconOverlay}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowTags(!showTags);
+                                }}
+                                title="View tagged users"
+                                style={{ bottom: '40px' }} // Position above video controls
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                    <path d="M20 17H4V5h16v12zm0-14H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM7 15c0-1.66 1.34-3 3-3s3 1.34 3 3H7zm10-3c0-1.1-.9-2-2-2h-3v4h3c1.1 0 2-.9 2-2z" />
+                                </svg>
+                            </div>
+                            {showTags && (
+                                <div className={styles.tagsListPopup} style={{ bottom: '78px' }} onClick={(e) => e.stopPropagation()}>
+                                    <div className={styles.tagHeader}>Tagged People</div>
+                                    {post.taggedUsers.map((tagUser) => (
+                                        <Link
+                                            key={tagUser.userId}
+                                            href={`/profile/${tagUser.userId}`}
+                                            className={styles.tagItem}
+                                        >
+                                            <div className={styles.tagItemAvatar} />
+                                            <span>{tagUser.userName}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             )}
 
@@ -364,18 +432,24 @@ export default function PostCard({ post: initialPost, onUpdate: globalUpdate, on
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {visibleComments?.map((comment: CommunityComment) => (
                             <div key={comment._id} style={{ display: 'flex', gap: '0.75rem' }}>
-                                <Image
-                                    src={comment.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || 'User')}&background=random`}
-                                    alt={comment.user?.name || 'User'}
-                                    width={32}
-                                    height={32}
-                                    className={styles.userAvatar}
-                                    style={{ width: '32px', height: '32px', border: 'none' }}
-                                    unoptimized
-                                />
+                                <Link href={`/profile/${comment.user?._id}`} className={styles.avatarLink}>
+                                    <Image
+                                        src={comment.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || 'User')}&background=random`}
+                                        alt={comment.user?.name || 'User'}
+                                        width={32}
+                                        height={32}
+                                        className={styles.userAvatar}
+                                        style={{ width: '32px', height: '32px', border: 'none' }}
+                                        unoptimized
+                                    />
+                                </Link>
                                 <div className={styles.commentBubble}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                        <div className={styles.commentUser}>{comment.user?.name || 'Unknown User'}</div>
+                                        <div className={styles.commentUser}>
+                                            <Link href={`/profile/${comment.user?._id}`} className={styles.nameLink}>
+                                                {comment.user?.name || 'Unknown User'}
+                                            </Link>
+                                        </div>
                                         <span style={{ fontSize: '0.7rem', color: '#8e8e8e' }}>
                                             {comment.createdAt === 'Just now' ? 'Just now' : (comment.createdAt ? new Date(comment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Just now')}
                                         </span>

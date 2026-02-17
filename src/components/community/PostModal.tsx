@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from '../../app/community/Community.module.css';
 import { Post, CommunityComment } from '../../types';
 import { useAuth } from '../../context/AuthContext';
@@ -19,6 +20,7 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
     const [post, setPost] = useState<Post>(initialPost);
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
+    const [showTags, setShowTags] = useState(false);
 
     const feelings = [
         { label: 'happy', emoji: '😊' },
@@ -117,11 +119,43 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
                 <div className={styles.modalContentGrid}>
                     {/* Left Side: Media */}
                     {(post.images?.length || post.video || post.gif) ? (
-                        <div className={styles.modalMediaSection}>
+                        <div className={styles.modalMediaSection} style={{ position: 'relative' }}>
                             {post.type === 'video' && post.video ? (
                                 <video src={post.video} controls className={styles.modalFullMedia} />
                             ) : (
                                 <img src={post.gif || post.images?.[0]} alt="" className={styles.modalFullMedia} />
+                            )}
+                            {post.taggedUsers && post.taggedUsers.length > 0 && (
+                                <>
+                                    <div
+                                        className={styles.tagIconOverlay}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowTags(!showTags);
+                                        }}
+                                        title="View tagged users"
+                                        style={{ bottom: post.type === 'video' ? '40px' : '12px' }}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                            <path d="M20 17H4V5h16v12zm0-14H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM7 15c0-1.66 1.34-3 3-3s3 1.34 3 3H7zm10-3c0-1.1-.9-2-2-2h-3v4h3c1.1 0 2-.9 2-2z" />
+                                        </svg>
+                                    </div>
+                                    {showTags && (
+                                        <div className={styles.tagsListPopup} onClick={(e) => e.stopPropagation()} style={{ bottom: post.type === 'video' ? '78px' : '50px' }}>
+                                            <div className={styles.tagHeader}>Tagged People</div>
+                                            {post.taggedUsers.map((tagUser) => (
+                                                <Link
+                                                    key={tagUser.userId}
+                                                    href={`/profile/${tagUser.userId}`}
+                                                    className={styles.tagItem}
+                                                >
+                                                    <div className={styles.tagItemAvatar} />
+                                                    <span>{tagUser.userName}</span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     ) : null}
@@ -130,20 +164,32 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
                     <div className={styles.modalInfoSection}>
                         <div className={styles.modalHeaderFixed}>
                             <div className={styles.postHeader} style={{ padding: 0 }}>
-                                <Image
-                                    src={post.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.user?.name || 'User')}&background=random`}
-                                    alt={post.user?.name || 'User'}
-                                    width={40}
-                                    height={40}
-                                    className={styles.userAvatar}
-                                    unoptimized
-                                />
+                                <Link href={`/profile/${post.user?._id}`} className={styles.avatarLink}>
+                                    <Image
+                                        src={post.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.user?.name || 'User')}&background=random`}
+                                        alt={post.user?.name || 'User'}
+                                        width={40}
+                                        height={40}
+                                        className={styles.userAvatar}
+                                        unoptimized
+                                    />
+                                </Link>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userName} style={{ fontSize: '0.9rem' }}>
-                                        {post.user?.name || 'Unknown User'}
+                                        <Link href={`/profile/${post.user?._id}`} className={styles.nameLink}>
+                                            {post.user?.name || 'Unknown User'}
+                                        </Link>
                                         {post.feeling && (
                                             <span style={{ fontWeight: 400, color: '#65676b', fontSize: '0.8rem', marginLeft: '4px' }}>
                                                 is feeling {feelings.find(f => f.label === post.feeling)?.emoji} {post.feeling}
+                                            </span>
+                                        )}
+                                        {post.taggedUsers && post.taggedUsers.length > 0 && (
+                                            <span style={{ fontWeight: 400, color: '#65676b', fontSize: '0.8rem', marginLeft: '4px' }}>
+                                                — with <span style={{ fontWeight: 600 }}>
+                                                    {post.taggedUsers[0].userName}
+                                                    {post.taggedUsers.length > 1 && ` and ${post.taggedUsers.length - 1} other${post.taggedUsers.length > 2 ? 's' : ''}`}
+                                                </span>
                                             </span>
                                         )}
                                     </div>
@@ -198,17 +244,23 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
                             <div className={styles.modalCommentsList}>
                                 {post.comments?.map((comment) => (
                                     <div key={comment._id} className={styles.modalCommentItem}>
-                                        <Image
-                                            src={comment.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || 'User')}&background=random`}
-                                            alt={comment.user?.name || 'User'}
-                                            width={32}
-                                            height={32}
-                                            className={styles.userAvatar}
-                                            style={{ width: '32px', height: '32px' }}
-                                            unoptimized
-                                        />
+                                        <Link href={`/profile/${comment.user?._id}`} className={styles.avatarLink}>
+                                            <Image
+                                                src={comment.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || 'User')}&background=random`}
+                                                alt={comment.user?.name || 'User'}
+                                                width={32}
+                                                height={32}
+                                                className={styles.userAvatar}
+                                                style={{ width: '32px', height: '32px' }}
+                                                unoptimized
+                                            />
+                                        </Link>
                                         <div className={styles.commentBubble}>
-                                            <div className={styles.commentUser}>{comment.user?.name}</div>
+                                            <div className={styles.commentUser}>
+                                                <Link href={`/profile/${comment.user?._id}`} className={styles.nameLink}>
+                                                    {comment.user?.name}
+                                                </Link>
+                                            </div>
                                             <div className={styles.commentContent}>{comment.content}</div>
                                         </div>
                                     </div>

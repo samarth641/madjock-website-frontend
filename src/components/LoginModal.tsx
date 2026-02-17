@@ -20,16 +20,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const { login } = useAuth();
     const [view, setView] = useState<ModalView>('PHONE_ENTRY');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [otp, setOtp] = useState(['', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [isPhoneVerified, setIsPhoneVerified] = useState(false);
     const [verifiedPhones, setVerifiedPhones] = useState<string[]>([]);
     const [email, setEmail] = useState('');
-    const [emailOtp, setEmailOtp] = useState('');
+    const [emailOtp, setEmailOtp] = useState(['', '', '', '', '', '']);
     const [name, setName] = useState('');
     const [dob, setDob] = useState('');
     const [gender, setGender] = useState('Male');
     const [referralCode, setReferralCode] = useState('');
-    const [phoneOtpValue, setPhoneOtpValue] = useState(['', '', '', '']);
+    const [phoneOtpValue, setPhoneOtpValue] = useState(['', '', '', '', '', '']);
     const [phoneOtpSentInSignup, setPhoneOtpSentInSignup] = useState(false);
 
     const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -51,9 +51,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             document.body.style.overflow = 'unset';
             // Clear inputs when closing
             setPhoneNumber('');
-            setOtp(['', '', '', '']);
+            setOtp(['', '', '', '', '', '']);
             setEmail('');
-            setEmailOtp('');
+            setEmailOtp(['', '', '', '', '', '']);
             setName('');
             setDob('');
             setGender('Male');
@@ -94,8 +94,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     const handleVerifyPhoneOtp = async () => {
         const otpValue = otp.join('');
-        if (otpValue.length < 4) {
-            setError('Please enter the complete OTP');
+        if (otpValue.length < 6) {
+            setError('Please enter the complete 6-digit OTP');
             return;
         }
         setLoading(true);
@@ -142,8 +142,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     };
 
     const handleVerifyEmailOtp = async () => {
-        if (emailOtp.length === 0) {
-            setError('Please enter the Email OTP');
+        const otpValue = emailOtp.join('');
+        if (otpValue.length < 6) {
+            setError('Please enter the complete 6-digit Email OTP');
             return;
         }
         setLoading(true);
@@ -151,7 +152,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         try {
             await axios.post(`${BASE_URL}/api/auth/verify-email-otp`, {
                 email,
-                otp: emailOtp
+                otp: otpValue
             });
             setIsEmailVerified(true);
             setError('');
@@ -182,8 +183,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     const handleVerifyPhoneOtpSignup = async () => {
         const otpVal = phoneOtpValue.join('');
-        if (otpVal.length < 4) {
-            setError('Please enter complete OTP');
+        if (otpVal.length < 6) {
+            setError('Please enter complete 6-digit OTP');
             return;
         }
         setLoading(true);
@@ -196,7 +197,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             setVerifiedPhones(prev => [...prev, phoneNumber]);
             setIsPhoneVerified(true);
             setPhoneOtpSentInSignup(false);
-            setPhoneOtpValue(['', '', '', '']);
+            setPhoneOtpValue(['', '', '', '', '', '']);
             setError('success:Phone number verified');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Invalid OTP');
@@ -311,7 +312,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <>
                         <div className={styles.titleArea}>
                             <h2 className={styles.welcomeText}>Verify OTP</h2>
-                            <p className={styles.subtitle}>Enter the 4-digit code sent to +91 {phoneNumber}</p>
+                            <p className={styles.subtitle}>Enter the 6-digit code sent to +91 {phoneNumber}</p>
                         </div>
 
                         <div className={styles.form}>
@@ -331,7 +332,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             setOtp(newOtp);
 
                                             // Focus next if a digit was entered
-                                            if (value && index < 3) {
+                                            if (value && index < 5) {
                                                 document.getElementById(`otp-${index + 1}`)?.focus();
                                             }
                                         }}
@@ -350,7 +351,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             <button
                                 className={styles.otpBtn}
                                 onClick={handleVerifyPhoneOtp}
-                                disabled={loading || otp.join('').length < 4}
+                                disabled={loading || otp.join('').length < 6}
                             >
                                 {loading ? 'Verifying...' : 'Verify & Continue'}
                             </button>
@@ -413,7 +414,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 type="tel"
                                                 maxLength={1}
                                                 className={styles.otpInputBox}
-                                                style={{ width: '40px', height: '48px', fontSize: '1.2rem' }}
+                                                style={{ width: '35px', height: '40px', fontSize: '1rem', padding: '5px' }}
                                                 value={digit}
                                                 onChange={(e) => {
                                                     const value = e.target.value.replace(/\D/g, '').slice(-1);
@@ -433,9 +434,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         ))}
                                         <button
                                             className={styles.inlineVerifyBtn}
-                                            onClick={handleVerifyPhoneOtpSignup}
-                                            disabled={loading || phoneOtpValue.join('').length < 4}
+                                            disabled={loading || phoneOtpValue.join('').length < 6}
                                             style={{ marginLeft: '10px' }}
+                                            onClick={handleVerifyPhoneOtpSignup}
                                         >
                                             Submit
                                         </button>
@@ -485,18 +486,39 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             {emailOtpSent && !isEmailVerified && (
                                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                                     <label className={styles.fieldLabel}>Enter Email OTP</label>
-                                    <div className={styles.inlineVerify}>
-                                        <input
-                                            type="text"
-                                            className={styles.inputField}
-                                            value={emailOtp}
-                                            onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, ''))}
-                                            placeholder="6-digit code"
-                                        />
+                                    <div className={styles.otpBoxContainer} style={{ marginTop: '10px' }}>
+                                        {emailOtp.map((digit, index) => (
+                                            <input
+                                                key={`email-otp-${index}`}
+                                                id={`email-otp-${index}`}
+                                                type="tel"
+                                                maxLength={1}
+                                                className={styles.otpInputBox}
+                                                style={{ width: '40px', height: '45px' }} // Slightly larger for better UX
+                                                value={digit}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/\D/g, '').slice(-1);
+                                                    const newOtp = [...emailOtp];
+                                                    newOtp[index] = value;
+                                                    setEmailOtp(newOtp);
+
+                                                    // Focus next
+                                                    if (value && index < 5) {
+                                                        document.getElementById(`email-otp-${index + 1}`)?.focus();
+                                                    }
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Backspace' && !emailOtp[index] && index > 0) {
+                                                        document.getElementById(`email-otp-${index - 1}`)?.focus();
+                                                    }
+                                                }}
+                                            />
+                                        ))}
                                         <button
                                             className={styles.inlineVerifyBtn}
                                             onClick={handleVerifyEmailOtp}
-                                            disabled={loading || !emailOtp}
+                                            disabled={loading || emailOtp.join('').length < 6}
+                                            style={{ marginLeft: '10px', height: '45px' }}
                                         >
                                             Submit
                                         </button>

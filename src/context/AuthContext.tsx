@@ -4,16 +4,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
     id: string;
+    _id?: string;
     phone: string;
     name?: string;
     email?: string;
     role: string;
+    avatar?: string;
 }
 
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    login: (token: string, user: User) => void;
+    login: (token: string, user: any) => void;
     logout: () => void;
     isLoading: boolean;
 }
@@ -32,7 +34,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (storedToken && storedUser) {
             try {
                 setToken(storedToken);
-                setUser(JSON.parse(storedUser));
+                const parsedUser = JSON.parse(storedUser);
+                // Ensure ID normalization for stored user
+                const normalizedUser = {
+                    ...parsedUser,
+                    id: parsedUser.id || parsedUser._id
+                };
+                setUser(normalizedUser);
             } catch (error) {
                 console.error('Failed to parse stored user:', error);
                 localStorage.removeItem('auth_token');
@@ -42,11 +50,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
     }, []);
 
-    const login = (newToken: string, newUser: User) => {
+    const login = (newToken: string, newUser: any) => {
+        const normalizedUser = {
+            ...newUser,
+            id: newUser.id || newUser._id
+        };
         setToken(newToken);
-        setUser(newUser);
+        setUser(normalizedUser);
         localStorage.setItem('auth_token', newToken);
-        localStorage.setItem('auth_user', JSON.stringify(newUser));
+        localStorage.setItem('auth_user', JSON.stringify(normalizedUser));
     };
 
     const logout = () => {

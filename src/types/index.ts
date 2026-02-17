@@ -71,3 +71,54 @@ export interface SearchParams {
     category?: string;
     status?: 'pending' | 'approved' | 'rejected';
 }
+
+export interface UserSnippet {
+    _id: string;
+    name: string;
+    avatar?: string;
+}
+
+export interface CommunityComment {
+    _id: string;
+    user: UserSnippet;
+    content: string;
+    createdAt: string;
+    likes: string[]; // User IDs
+}
+
+export interface PollOption {
+    _id: string;
+    id?: string;
+    text: string;
+    votes: string[]; // User IDs
+}
+
+export interface Poll {
+    question: string;
+    options: PollOption[];
+    totalVotes: number;
+    userVotedOptionId?: string | null; // For the current user
+}
+
+export interface Post {
+    _id: string;
+    user: UserSnippet;
+    content?: string;
+    images?: string[];
+    video?: string;
+    gif?: string;
+    type: 'text' | 'image' | 'video' | 'poll';
+    feeling?: string;
+    location?: {
+        name: string;
+        lat?: number;
+        lng?: number;
+    };
+    taggedUsers?: { userId: string; userName: string; }[];
+    poll?: Poll;
+    likes: string[]; // User IDs
+    comments: CommunityComment[];
+    createdAt: string;
+    updatedAt: string;
+    likedByMe?: boolean; // Helper for UI
+}

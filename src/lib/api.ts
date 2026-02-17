@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Business, Category, Service, SearchParams, Slider } from '@/types';
+import { Business, Slider, Category, ApiResponse, SearchParams, Post, UserSnippet, CommunityComment, Poll, Service } from '../types';
+
 import { mockBusinesses, mockCategories, mockServices } from './mockData';
 import { transformBusinessArray } from './transformers';
 
@@ -12,6 +13,20 @@ const apiClient = axios.create({
     },
     timeout: 5000,
 });
+
+// Request interceptor to add auth token
+apiClient.interceptors.request.use(
+    (config) => {
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 // Slider APIs
 export const getActiveSliders = async (): Promise<Slider[]> => {
@@ -165,4 +180,269 @@ export const getServices = async (): Promise<Service[]> => {
 export const searchBusinesses = async (search: string, city?: string): Promise<Business[]> => {
     // We now use the backend search capabilities by passing search and city
     return await getBusinesses({ search, city, status: 'approved' });
+};
+
+// Community APIs
+// Mock Data for Community if backend is not ready
+const mockPosts: Post[] = [
+    {
+        _id: '1',
+        user: { _id: 'u1', name: 'John Doe', avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=random' },
+        content: 'Check out this amazing view from my hike yesterday! 🏔️',
+        type: 'image',
+        images: ['https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&auto=format&fit=crop&q=60'],
+        likes: ['u2', 'u3'],
+        comments: [
+            { _id: 'c1', user: { _id: 'u2', name: 'Jane Smith' }, content: 'Wow, stunning!', createdAt: new Date().toISOString(), likes: [] },
+            { _id: 'c2', user: { _id: 'u3', name: 'Bob Johnson' }, content: 'Where is this?', createdAt: new Date().toISOString(), likes: [] },
+            { _id: 'c3', user: { _id: 'u4', name: 'Alice Williams' }, content: 'I want to go there!', createdAt: new Date().toISOString(), likes: [] }
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likedByMe: false
+    },
+    {
+        _id: '2',
+        user: { _id: 'u2', name: 'Tech Insider', avatar: 'https://ui-avatars.com/api/?name=Tech+Insider&background=random' },
+        content: 'Which programming language do you prefer for backend development?',
+        type: 'poll',
+        poll: {
+            question: 'Best Backend Language?',
+            options: [
+                { _id: 'p1', text: 'Node.js', votes: ['u1', 'u3'] },
+                { _id: 'p2', text: 'Python', votes: ['u4'] },
+                { _id: 'p3', text: 'Go', votes: [] },
+                { _id: 'p4', text: 'Java', votes: [] }
+            ],
+            totalVotes: 3
+        },
+        likes: ['u1'],
+        comments: [],
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        updatedAt: new Date().toISOString(),
+        likedByMe: true
+    },
+    {
+        _id: '3',
+        user: { _id: 'u5', name: 'Alice Cooper', avatar: 'https://ui-avatars.com/api/?name=Alice+Cooper&background=random' },
+        content: 'Just launched my new website! Check it out.',
+        type: 'text',
+        likes: [],
+        comments: [],
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        updatedAt: new Date().toISOString(),
+        likedByMe: false
+    }
+];
+
+// Transformers
+const transformComment = (data: any): CommunityComment => ({
+    _id: data._id || data.id,
+    user: {
+        _id: data.userId || (data.user?._id || data.user?.id),
+        name: data.userName || data.user?.name,
+        avatar: data.profileImageUrl || data.user?.avatar
+    },
+    content: data.text || data.content,
+    createdAt: data.createdAt || data.timestamp,
+    likes: data.likes || []
+});
+
+const transformPost = (data: any): Post => {
+    // Robustly find an ID for the post
+    const postId = data._id || data.id;
+    console.log('DEBUG: transformPost raw data:', {
+        id: postId,
+        type: data.type,
+        media: data.media,
+        hasImage: !!data.media?.image,
+        hasVideo: !!data.media?.video
+    });
+
+    return {
+        _id: postId ? String(postId) : '',
+        user: {
+            _id: data.userId || 'unknown',
+            name: data.userName || 'Unknown User',
+            avatar: data.profileImageUrl || ''
+        },
+        content: data.text || data.content || '',
+        images: data.media?.image ? [data.media.image] : (Array.isArray(data.images) ? data.images : (data.image ? [data.image] : [])),
+        video: data.media?.video || data.video || '',
+        gif: data.media?.gif || data.gif || '',
+        type: (data.media?.video || data.video) ? 'video' :
+            (data.media?.gif || data.media?.image || (data.images && data.images.length > 0) || data.image) ? 'image' :
+                (data.poll ? 'poll' : (data.type || 'text')),
+        poll: data.poll ? {
+            question: data.poll.question,
+            options: (data.poll.options || []).map((opt: any) => ({
+                _id: opt._id || opt.id,
+                text: opt.text,
+                votes: opt.votes || []
+            })),
+            totalVotes: data.poll.totalVotes || 0,
+            userVotedOptionId: data.poll.userVotedOptionId
+        } : undefined,
+        feeling: data.feeling || '',
+        location: data.location ? {
+            name: data.location.name || '',
+            lat: data.location.lat,
+            lng: data.location.lng
+        } : undefined,
+        taggedUsers: data.taggedUsers || [],
+        likes: data.likes || [],
+        comments: (data.comments || []).map(transformComment),
+        createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
+        updatedAt: data.updatedAt || data.timestamp || new Date().toISOString(),
+        likedByMe: false // Calculated in component or passed from backend
+    };
+};
+
+export const getPosts = async (): Promise<Post[]> => {
+    try {
+        const response = await apiClient.get('/api/community/all');
+        const rawPosts = response.data.data || [];
+        return rawPosts.map(transformPost);
+    } catch (error: any) {
+        console.warn('⚠️ Backend error or unavailable, using mock data:', error.message);
+        return mockPosts;
+    }
+};
+
+export interface CreatePostData {
+    userId: string;
+    userName: string;
+    profileImageUrl?: string;
+    text: string;
+    type: 'text' | 'image' | 'video' | 'poll';
+    feeling?: string;
+    location?: {
+        name: string;
+        lat?: number;
+        lng?: number;
+    };
+    media?: {
+        image?: string;
+        video?: string;
+        gif?: string;
+    };
+    taggedUsers?: { userId: string; userName: string; }[];
+    poll?: {
+        question: string;
+        options: string[];
+        duration?: number;
+    };
+}
+
+export const createPost = async (postData: CreatePostData): Promise<Post | null> => {
+    try {
+        const response = await apiClient.post('/api/community/create', postData);
+        return response.data.data ? transformPost(response.data.data) : null;
+    } catch (error) {
+        console.error('❌ Error creating post:', error);
+        throw error;
+    }
+};
+
+export const uploadCommunityMedia = async (file: File): Promise<string | null> => {
+    try {
+        const formData = new FormData();
+        formData.append('communityMedia', file);
+
+        const response = await apiClient.post('/api/community/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+
+        return response.data.url || null;
+    } catch (error) {
+        console.error('❌ Error uploading community media:', error);
+        return null;
+    }
+};
+
+export const likePost = async (postId: string, userId: string): Promise<{ success: boolean; likes: string[] }> => {
+    try {
+        // Backend expects userId in body for toggling
+        const response = await apiClient.put(`/api/community/like/${postId}`, { userId });
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error liking post:', error);
+        return { success: false, likes: [] };
+    }
+};
+
+export const commentOnPost = async (postId: string, userId: string, userName: string, text: string): Promise<CommunityComment | null> => {
+    try {
+        const response = await apiClient.post(`/api/community/comment/${postId}`, { userId, userName, text });
+        return response.data.data ? transformComment(response.data.data) : null;
+    } catch (error) {
+        console.error('❌ Error creating comment:', error);
+        return null;
+    }
+};
+
+export const votePoll = async (postId: string, optionId: string): Promise<Poll | null> => {
+    try {
+        const response = await apiClient.post(`/api/community/vote/${postId}`, { optionId });
+        const updatedPollData = response.data.data;
+        return updatedPollData ? {
+            question: updatedPollData.question,
+            options: updatedPollData.options.map((opt: any) => ({
+                _id: opt._id || opt.id,
+                text: opt.text,
+                votes: opt.votes || []
+            })),
+            totalVotes: updatedPollData.totalVotes || 0,
+            userVotedOptionId: updatedPollData.userVotedOptionId
+        } : null;
+    } catch (error) {
+        console.error('❌ Error voting on poll:', error);
+        return null;
+    }
+};
+
+export const searchCommunity = async (query: string): Promise<{ posts: Post[]; users: any[] }> => {
+    try {
+        const response = await apiClient.get(`/api/community/search?q=${encodeURIComponent(query)}`);
+        const { posts = [], users = [] } = response.data.data || {};
+        return {
+            posts: posts.map(transformPost),
+            users: users.map((u: any) => ({
+                _id: u._id || u.id,
+                name: u.name || u.userName,
+                avatar: u.avatar || u.profileImageUrl
+            }))
+        };
+    } catch (error) {
+        console.error('❌ Error searching community:', error);
+        return { posts: [], users: [] };
+    }
+};
+
+export const getUsers = async (): Promise<UserSnippet[]> => {
+    try {
+        const response = await apiClient.get('/api/users/all');
+        if (response.data?.success) {
+            const rawUsers = response.data.data;
+            if (!Array.isArray(rawUsers)) return [];
+
+            // Map and filter for valid IDs
+            const mappedUsers = rawUsers.map((u: any) => ({
+                _id: String(u._id || u.id || ''),
+                name: u.userName || u.name || 'User',
+                avatar: u.profileImageUrl || u.avatar || ''
+            })).filter(u => u._id && u._id !== 'undefined' && u._id !== 'null');
+
+            // Deduplicate
+            const uniqueUsers = Array.from(new Map(mappedUsers.map(u => [u._id, u])).values());
+
+            return uniqueUsers as UserSnippet[];
+        }
+        return [];
+    } catch (error) {
+        console.error('Failed to fetch users', error);
+        return [];
+    }
 };

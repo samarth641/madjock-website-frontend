@@ -9,7 +9,7 @@ import styles from './Header.module.css';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
-    const { user, logout } = useAuth();
+    const { user, logout, isLoading } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -54,15 +54,15 @@ export default function Header() {
     };
 
     useEffect(() => {
-        // Automatically open login modal after 5 seconds if not logged in
-        if (!user) {
+        // Automatically open login modal after 5 seconds if not logged in and not loading
+        if (!isLoading && !user) {
             const timer = setTimeout(() => {
                 setIsLoginModalOpen(true);
             }, 5000);
 
             return () => clearTimeout(timer);
         }
-    }, [user]);
+    }, [user, isLoading]);
 
     return (
         <header className={styles.header}>

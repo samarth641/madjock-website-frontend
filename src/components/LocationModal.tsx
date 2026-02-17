@@ -38,13 +38,7 @@ export default function LocationModal({ isOpen, onSelect, onClose }: LocationMod
                     const { latitude, longitude } = position.coords;
 
                     const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
-                        {
-                            headers: {
-                                'Accept-Language': 'en-US',
-                                'User-Agent': 'Madjock-Website-Frontend'
-                            }
-                        }
+                        `/api/location/reverse?lat=${latitude}&lon=${longitude}`
                     );
                     const data = await response.json();
 

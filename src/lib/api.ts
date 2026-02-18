@@ -241,7 +241,7 @@ const transformComment = (data: any): CommunityComment => ({
     user: {
         _id: data.userId || (data.user?._id || data.user?.id),
         name: data.userName || data.user?.name,
-        avatar: data.profileImageUrl || data.user?.avatar
+        avatar: data.user?.avatar || data.profileImageUrl || ''
     },
     content: data.text || data.content,
     createdAt: data.createdAt || data.timestamp,
@@ -264,7 +264,7 @@ const transformPost = (data: any): Post => {
         user: {
             _id: data.userId || (data.user?._id || data.user?.id) || 'unknown',
             name: data.userName || data.user?.name || 'Unknown User',
-            avatar: data.profileImageUrl || data.user?.avatar || ''
+            avatar: data.user?.avatar || data.profileImageUrl || ''
         },
         content: data.text || data.content || '',
         images: data.media?.image ? [data.media.image] : (Array.isArray(data.images) ? data.images : (data.image ? [data.image] : [])),
@@ -292,7 +292,7 @@ const transformPost = (data: any): Post => {
         taggedUsers: (data.taggedUsers || []).map((tu: any) => ({
             userId: tu.userId,
             userName: tu.userName,
-            avatarUrl: tu.avatarUrl || tu.profileImageUrl || ''
+            avatarUrl: tu.avatarUrl || tu.avatar || ''
         })),
         likes: data.likes || [],
         comments: (data.comments || []).map(transformComment),
@@ -316,7 +316,7 @@ export const getPosts = async (): Promise<Post[]> => {
 export interface CreatePostData {
     userId: string;
     userName: string;
-    profileImageUrl?: string;
+    avatar?: string;
     text: string;
     type: 'text' | 'image' | 'video' | 'poll';
     feeling?: string;
@@ -436,7 +436,7 @@ export const getUsers = async (): Promise<UserSnippet[]> => {
             const mappedUsers = rawUsers.map((u: any) => ({
                 _id: String(u._id || u.id || ''),
                 name: u.userName || u.name || 'User',
-                avatar: u.profileImageUrl || u.avatar || ''
+                avatar: u.avatar || u.profileImageUrl || ''
             })).filter(u => u._id && u._id !== 'undefined' && u._id !== 'null');
 
             // Deduplicate
@@ -461,7 +461,7 @@ export const getUserProfile = async (userId: string, currentUserId?: string): Pr
         return {
             _id: u._id || u.id,
             name: u.userName || u.name || 'User',
-            avatar: u.profileImageUrl || u.avatar || '',
+            avatar: u.avatar || u.profileImageUrl || '',
             bio: u.bio || '',
             location: u.location || '',
             gender: u.gender || '',
@@ -536,6 +536,21 @@ export const getUserBusinesses = async (userId: string): Promise<Business[]> => 
     } catch (error) {
         console.error(`❌ Error fetching businesses for user ${userId}:`, error);
         return [];
+    }
+};
+
+export const createBusiness = async (data: any): Promise<boolean> => {
+    try {
+        // We use the admin endpoint which is actually the user-side ADD BUSINESS route
+        const response = await apiClient.post('/api/admin/business/add-business', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data.success || false;
+    } catch (error) {
+        console.error('❌ Error creating business:', error);
+        return false;
     }
 };
 

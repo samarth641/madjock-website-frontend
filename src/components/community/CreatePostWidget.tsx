@@ -217,7 +217,7 @@ export default function CreatePostWidget({ onPostCreated, onLoginReq }: CreatePo
             const postData: CreatePostData = {
                 userId: user.id,
                 userName: user.name || 'User',
-                profileImageUrl: user.avatar || '',
+                avatar: user.avatar || '',
                 text: content.trim(),
                 type: postType,
                 media: mediaData,

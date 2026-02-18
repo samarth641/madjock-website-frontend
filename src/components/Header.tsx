@@ -108,10 +108,21 @@ export default function Header() {
                                     className={styles.profileBtn}
                                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                                 >
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                        <circle cx="12" cy="7" r="4" />
-                                    </svg>
+                                    {user.avatar ? (
+                                        <Image
+                                            src={user.avatar}
+                                            alt={user.name || 'User'}
+                                            width={42}
+                                            height={42}
+                                            className={styles.profileBtnImage}
+                                            unoptimized
+                                        />
+                                    ) : (
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                            <circle cx="12" cy="7" r="4" />
+                                        </svg>
+                                    )}
                                 </button>
                                 {showProfileMenu && (
                                     <div className={styles.profileMenu}>

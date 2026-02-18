@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import styles from './AddBusiness.module.css';
+import { createBusiness } from '@/lib/api';
 
 export default function AddBusiness() {
     const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function AddBusiness() {
         businessCategory: '',
         city: '',
         description: '',
-        whatsapp: ''
+        whatsapp: user?.phone || ''
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -28,16 +29,27 @@ export default function AddBusiness() {
         setLoading(true);
 
         try {
-            // This is a placeholder for the actual API call
-            // Since the user just asked for navigation for now, 
-            // we'll simulate a success and redirect.
-            console.log("Submitting business data:", formData);
+            const userId = user?.id || (user as any)?._id;
 
-            // Artificial delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const submitData = new FormData();
+            submitData.append('businessName', formData.businessName);
+            submitData.append('ownerName', formData.ownerName);
+            submitData.append('businessCategory', formData.businessCategory);
+            submitData.append('city', formData.city);
+            submitData.append('description', formData.description);
+            submitData.append('whatsapp', formData.whatsapp);
+            if (userId) {
+                submitData.append('userId', userId);
+            }
 
-            alert("Business application submitted for review!");
-            router.push('/dashboard');
+            const success = await createBusiness(submitData);
+
+            if (success) {
+                alert("Business application submitted for review!");
+                router.push('/dashboard');
+            } else {
+                alert("Failed to submit business. Please try again.");
+            }
         } catch (error) {
             console.error("Submission failed:", error);
             alert("Failed to submit business. Please try again.");

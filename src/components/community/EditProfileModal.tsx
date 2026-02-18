@@ -3,6 +3,7 @@ import styles from '@/app/community/Community.module.css';
 import { UserProfile } from '@/types';
 import { updateUserProfile, uploadCommunityMedia } from '@/lib/api';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -12,6 +13,7 @@ interface EditProfileModalProps {
 }
 
 export default function EditProfileModal({ isOpen, onClose, profile, onUpdate }: EditProfileModalProps) {
+    const { updateUser } = useAuth();
     const [name, setName] = useState(profile.name);
     const [bio, setBio] = useState(profile.bio || '');
     const [location, setLocation] = useState(profile.location || '');
@@ -22,10 +24,13 @@ export default function EditProfileModal({ isOpen, onClose, profile, onUpdate }:
     const [pincode, setPincode] = useState(profile.pincode || '');
     const [email, setEmail] = useState(profile.email || '');
     const [country, setCountry] = useState(profile.country || 'India');
+    const [avatar, setAvatar] = useState(profile.avatar || '');
     const [loading, setLoading] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [error, setError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -46,6 +51,25 @@ export default function EditProfileModal({ isOpen, onClose, profile, onUpdate }:
         }
     };
 
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setUploadingAvatar(true);
+            setError('');
+            try {
+                const url = await uploadCommunityMedia(e.target.files[0]);
+                if (url) {
+                    setAvatar(url);
+                } else {
+                    setError('Failed to upload avatar. Please try again.');
+                }
+            } catch (err) {
+                setError('Error uploading avatar.');
+            } finally {
+                setUploadingAvatar(false);
+            }
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -61,13 +85,18 @@ export default function EditProfileModal({ isOpen, onClose, profile, onUpdate }:
             aadhaarImage,
             pincode,
             email,
-            country
+            country,
+            avatar
         };
 
         try {
             const success = await updateUserProfile(profile._id, updateData);
 
             if (success) {
+                // Update global auth state first
+                updateUser(updateData);
+
+                // Then local callback if any
                 onUpdate({
                     ...profile,
                     ...updateData
@@ -99,6 +128,39 @@ export default function EditProfileModal({ isOpen, onClose, profile, onUpdate }:
                             {error}
                         </div>
                     )}
+
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: '1px solid #f0f2f5', paddingBottom: '1.5rem' }}>
+                        <div style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #3b82f6', marginBottom: '1rem', backgroundColor: '#f0f2f5' }}>
+                            <Image
+                                src={avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random`}
+                                alt="Profile"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                unoptimized
+                            />
+                            {uploadingAvatar && (
+                                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div className={styles.loader} style={{ width: '20px', height: '20px' }}></div>
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => avatarInputRef.current?.click()}
+                            className={styles.modalTab}
+                            style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderRadius: '20px', margin: 0 }}
+                            disabled={uploadingAvatar}
+                        >
+                            {uploadingAvatar ? 'Uploading...' : 'Change Profile Picture'}
+                        </button>
+                        <input
+                            type="file"
+                            ref={avatarInputRef}
+                            onChange={handleAvatarUpload}
+                            style={{ display: 'none' }}
+                            accept="image/*"
+                        />
+                    </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div style={{ marginBottom: '1rem', gridColumn: 'span 2' }}>

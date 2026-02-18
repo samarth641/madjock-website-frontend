@@ -16,6 +16,7 @@ interface AuthContextType {
     user: User | null;
     token: string | null;
     login: (token: string, user: any) => void;
+    updateUser: (newUser: any) => void;
     logout: () => void;
     isLoading: boolean;
 }
@@ -35,10 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             try {
                 setToken(storedToken);
                 const parsedUser = JSON.parse(storedUser);
-                // Ensure ID normalization for stored user
+                // Ensure ID and avatar normalization for stored user
                 const normalizedUser = {
                     ...parsedUser,
-                    id: parsedUser.id || parsedUser._id
+                    id: parsedUser.id || parsedUser._id,
+                    avatar: parsedUser.avatar || parsedUser.profileImageUrl || ''
                 };
                 setUser(normalizedUser);
             } catch (error) {
@@ -53,12 +55,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const login = (newToken: string, newUser: any) => {
         const normalizedUser = {
             ...newUser,
-            id: newUser.id || newUser._id
+            id: newUser.id || newUser._id,
+            avatar: newUser.avatar || newUser.profileImageUrl || ''
         };
         setToken(newToken);
         setUser(normalizedUser);
         localStorage.setItem('auth_token', newToken);
         localStorage.setItem('auth_user', JSON.stringify(normalizedUser));
+    };
+
+    const updateUser = (updatedUserData: any) => {
+        if (!user) return;
+
+        const newUser = {
+            ...user,
+            ...updatedUserData,
+            id: updatedUserData.id || updatedUserData._id || user.id
+        };
+
+        setUser(newUser);
+        localStorage.setItem('auth_user', JSON.stringify(newUser));
+        console.log('✅ User state and localStorage updated:', newUser);
     };
 
     const logout = () => {
@@ -69,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, token, login, updateUser, logout, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

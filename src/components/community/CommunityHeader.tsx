@@ -6,14 +6,23 @@ import styles from '@/app/community/Community.module.css';
 
 interface CommunityHeaderProps {
     onSearch: (query: string) => void;
+    onMembersClick: () => void;
+    onHomeClick?: () => void;
 }
 
-export default function CommunityHeader({ onSearch }: CommunityHeaderProps) {
+export default function CommunityHeader({ onSearch, onMembersClick, onHomeClick }: CommunityHeaderProps) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         onSearch(searchQuery);
+    };
+
+    const handleHomeClick = () => {
+        setSearchQuery('');
+        if (onHomeClick) {
+            onHomeClick();
+        }
     };
 
     return (
@@ -28,8 +37,8 @@ export default function CommunityHeader({ onSearch }: CommunityHeaderProps) {
                     </div>
                     <input
                         type="text"
+                        placeholder="Search..."
                         className={styles.headerSearch}
-                        placeholder="Search community posts and members..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -37,12 +46,33 @@ export default function CommunityHeader({ onSearch }: CommunityHeaderProps) {
             </div>
 
             <div className={styles.headerCenter}>
-                <div className={`${styles.navIcon} ${styles.navActive}`} title="Home Feed">
+                <Link
+                    href="/community"
+                    className={`${styles.navIcon} ${styles.navActive}`}
+                    title="Home Feed"
+                    onClick={handleHomeClick}
+                >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                     </svg>
-                </div>
-                <div className={styles.navIcon} title="Members">
+                </Link>
+                <Link
+                    href="/community?filter=following"
+                    className={styles.navIcon}
+                    title="Following"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <polyline points="17 11 19 13 23 9"></polyline>
+                    </svg>
+                </Link>
+                <div
+                    className={styles.navIcon}
+                    title="Members"
+                    onClick={onMembersClick}
+                    style={{ cursor: 'pointer' }}
+                >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>

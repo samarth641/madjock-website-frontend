@@ -289,7 +289,11 @@ const transformPost = (data: any): Post => {
             lat: data.location.lat,
             lng: data.location.lng
         } : undefined,
-        taggedUsers: data.taggedUsers || [],
+        taggedUsers: (data.taggedUsers || []).map((tu: any) => ({
+            userId: tu.userId,
+            userName: tu.userName,
+            avatarUrl: tu.avatarUrl || tu.profileImageUrl || ''
+        })),
         likes: data.likes || [],
         comments: (data.comments || []).map(transformComment),
         createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
@@ -326,7 +330,7 @@ export interface CreatePostData {
         video?: string;
         gif?: string;
     };
-    taggedUsers?: { userId: string; userName: string; }[];
+    taggedUsers?: { userId: string; userName: string; avatarUrl?: string; }[];
     poll?: {
         question: string;
         options: string[];
@@ -502,3 +506,39 @@ export const unfollowUser = async (targetUserId: string, userId: string): Promis
         return false;
     }
 };
+
+export const getFollowers = async (userId: string, currentUserId?: string) => {
+    const response = await apiClient.get(`/api/users/followers/${userId}`, {
+        params: { currentUserId }
+    });
+    return response.data.data;
+};
+
+export const getFollowing = async (userId: string, currentUserId?: string) => {
+    const response = await apiClient.get(`/api/users/following/${userId}`, {
+        params: { currentUserId }
+    });
+    return response.data.data;
+};
+
+export const getUserBusinesses = async (userId: string): Promise<Business[]> => {
+    try {
+        const response = await apiClient.get(`/api/users/businesses/${userId}`);
+        const businesses = response.data.data || [];
+        return transformBusinessArray(businesses);
+    } catch (error) {
+        console.error(`❌ Error fetching businesses for user ${userId}:`, error);
+        return [];
+    }
+};
+
+export const updateUserProfile = async (userId: string, data: any): Promise<boolean> => {
+    try {
+        const response = await apiClient.put(`/api/users/profile/${userId}`, data);
+        return response.data.success || false;
+    } catch (error) {
+        console.error(`❌ Error updating profile for ${userId}:`, error);
+        return false;
+    }
+};
+

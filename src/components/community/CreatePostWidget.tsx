@@ -223,7 +223,7 @@ export default function CreatePostWidget({ onPostCreated, onLoginReq }: CreatePo
                 media: mediaData,
                 feeling: feeling || undefined,
                 location: locationName ? { name: locationName } : undefined,
-                taggedUsers: taggedUsers.length > 0 ? taggedUsers.map(u => ({ userId: u._id, userName: u.name })) : undefined,
+                taggedUsers: taggedUsers.length > 0 ? taggedUsers.map(u => ({ userId: u._id, userName: u.name, avatarUrl: u.avatar })) : undefined,
                 poll: postType === 'poll' ? {
                     question: content.trim() || 'Poll',
                     options: validPollOptions
@@ -296,10 +296,23 @@ export default function CreatePostWidget({ onPostCreated, onLoginReq }: CreatePo
                     <span>Poll</span>
                 </div>
                 <div className={styles.actionItem} onClick={() => { handleOpenModal(); setShowGifPicker(true); }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cd48ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <text x="6" y="16" fill="#cd48ff" fontSize="10" fontWeight="bold">GIF</text>
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"
+                            fill="none"
+                            stroke="#cd48ff"
+                            stroke-width="2" />
+
+                        <text x="5" y="16"
+                            fill="#cd48ff"
+                            font-size="9"
+                            font-weight="bold"
+                            stroke="none">
+                            GIF
+                        </text>
+
                     </svg>
+
                     <span>GIF</span>
                 </div>
             </div>

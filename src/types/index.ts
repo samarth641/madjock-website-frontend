@@ -124,7 +124,7 @@ export interface Post {
         lat?: number;
         lng?: number;
     };
-    taggedUsers?: { userId: string; userName: string; }[];
+    taggedUsers?: { userId: string; userName: string; avatarUrl?: string; }[];
     poll?: Poll;
     likes: string[]; // User IDs
     comments: CommunityComment[];

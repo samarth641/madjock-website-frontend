@@ -21,6 +21,7 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
     const [showTags, setShowTags] = useState(false);
+    const [shareSuccess, setShareSuccess] = useState(false);
 
     const feelings = [
         { label: 'happy', emoji: '😊' },
@@ -111,6 +112,32 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
         }
     };
 
+    const handleShare = async () => {
+        const shareUrl = `${window.location.origin}/post/${post._id}`;
+        const shareData = {
+            title: `Check out this post from ${post.user?.name || 'Madjock'}`,
+            text: post.content || 'Check out this post on Madjock!',
+            url: shareUrl
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log('Share canceled or failed', err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setShareSuccess(true);
+                setTimeout(() => setShareSuccess(false), 2000);
+            } catch (err) {
+                console.error('Copy failed', err);
+                alert('Failed to copy link');
+            }
+        }
+    };
+
     return (
         <div className={styles.modalOverlay} onClick={onClose}>
             <div className={styles.postDetailModal} onClick={(e) => e.stopPropagation()}>
@@ -149,7 +176,14 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
                                                     href={`/profile/${tagUser.userId}`}
                                                     className={styles.tagItem}
                                                 >
-                                                    <div className={styles.tagItemAvatar} />
+                                                    <Image
+                                                        src={tagUser.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(tagUser.userName)}&background=random`}
+                                                        alt={tagUser.userName}
+                                                        width={24}
+                                                        height={24}
+                                                        className={styles.tagItemAvatar}
+                                                        unoptimized
+                                                    />
                                                     <span>{tagUser.userName}</span>
                                                 </Link>
                                             ))}
@@ -282,6 +316,14 @@ export default function PostModal({ post: initialPost, onClose, onUpdate, onLogi
                                     </svg>
                                     <span>{post.comments?.length || 0}</span>
                                 </div>
+                                <button className={styles.actionButton} onClick={handleShare}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                        <polyline points="16 6 12 2 8 6"></polyline>
+                                        <line x1="12" y1="2" x2="12" y2="15"></line>
+                                    </svg>
+                                    <span>{shareSuccess ? 'Copied!' : 'Share'}</span>
+                                </button>
                             </div>
 
                             {user && (

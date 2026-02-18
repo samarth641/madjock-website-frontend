@@ -8,14 +8,23 @@ import PostCard from '@/components/community/PostCard';
 import CreatePostWidget from '@/components/community/CreatePostWidget';
 import LoginModal from '@/components/LoginModal';
 import CommunityHeader from '@/components/community/CommunityHeader';
+import UsersModal from '@/components/community/UsersModal';
 import { getPosts, searchCommunity } from '@/lib/api';
 import { Post } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function CommunityPage() {
+function CommunityContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [searchResults, setSearchResults] = useState<{ posts: Post[]; users: any[] } | null>(null);
+    const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+    const [usersModalTab, setUsersModalTab] = useState<'followers' | 'following'>('followers');
+    const { user } = useAuth();
 
     const fetchPosts = async () => {
         setLoading(true);
@@ -29,15 +38,8 @@ export default function CommunityPage() {
         }
     };
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
 
-    const handleSearch = async (query: string) => {
-        if (!query.trim()) {
-            setSearchResults(null);
-            return;
-        }
+    const performSearch = async (query: string) => {
         setLoading(true);
         try {
             const results = await searchCommunity(query);
@@ -49,6 +51,16 @@ export default function CommunityPage() {
         }
     };
 
+    useEffect(() => {
+        const query = searchParams.get('search');
+        if (query) {
+            performSearch(query);
+        } else {
+            setSearchResults(null);
+            fetchPosts();
+        }
+    }, [searchParams]);
+
     const handleLoginReq = () => {
         setIsLoginModalOpen(true);
     };
@@ -59,32 +71,53 @@ export default function CommunityPage() {
         <div className={styles.container}>
             <div className={styles.mainLayout}>
                 <div style={{ gridColumn: '1 / -1' }}>
-                    <CommunityHeader onSearch={handleSearch} />
+                    <CommunityHeader
+                        onSearch={(query) => router.push(`/community?search=${encodeURIComponent(query)}`)}
+                        onHomeClick={() => {
+                            setSearchResults(null);
+                            router.push('/community');
+                        }}
+                        onMembersClick={() => {
+                            if (!user) {
+                                handleLoginReq();
+                                return;
+                            }
+                            setUsersModalTab('followers');
+                            setIsUsersModalOpen(true);
+                        }}
+                    />
                 </div>
 
                 {/* Left Sidebar */}
                 <div className={styles.leftSidebar}>
                     <div className={styles.sidebar}>
                         <div className={styles.sidebarSection}>
-                            <div className={`${styles.sidebarItem} ${styles.sidebarItemActive}`}>
+                            <div
+                                className={`${styles.sidebarItem} ${!searchResults ? styles.sidebarItemActive : ''}`}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    console.log('Home Feed Sidebar Clicked');
+                                    setSearchResults(null);
+                                    router.push('/community');
+                                }}
+                            >
                                 <div className={styles.sidebarIcon}>🏠</div>
-                                <span>Home Feed</span>
+                                <span>Feed</span>
                             </div>
-                            <div className={styles.sidebarItem}>
+                            <div
+                                className={styles.sidebarItem}
+                                onClick={() => {
+                                    if (!user) {
+                                        handleLoginReq();
+                                        return;
+                                    }
+                                    setUsersModalTab('followers');
+                                    setIsUsersModalOpen(true);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <div className={styles.sidebarIcon}>👥</div>
                                 <span>Friends</span>
-                            </div>
-                            <div className={styles.sidebarItem}>
-                                <div className={styles.sidebarIcon}>🛡️</div>
-                                <span>Groups</span>
-                            </div>
-                            <div className={styles.sidebarItem}>
-                                <div className={styles.sidebarIcon}>📺</div>
-                                <span>Watch</span>
-                            </div>
-                            <div className={styles.sidebarItem}>
-                                <div className={styles.sidebarIcon}>🏙️</div>
-                                <span>Marketplace</span>
                             </div>
                         </div>
                     </div>
@@ -146,15 +179,6 @@ export default function CommunityPage() {
                 {/* Right Sidebar */}
                 <div className={styles.rightSidebar}>
                     <div className={styles.sidebar}>
-                        <div className={styles.sidebarSection}>
-                            <h3 style={{ margin: '0 0.75rem 0.75rem', fontSize: '1rem', color: '#65676b', fontWeight: 600 }}>Contacts</h3>
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className={styles.sidebarItem}>
-                                    <div className={styles.sidebarIcon} style={{ fontSize: '1rem' }}>👤</div>
-                                    <span>MadJock User {i}</span>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -163,6 +187,23 @@ export default function CommunityPage() {
                 isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
             />
+
+            {user && (
+                <UsersModal
+                    isOpen={isUsersModalOpen}
+                    onClose={() => setIsUsersModalOpen(false)}
+                    userId={user.id || user._id || ''}
+                    initialTab={usersModalTab}
+                />
+            )}
         </div>
+    );
+}
+
+export default function CommunityPage() {
+    return (
+        <Suspense fallback={<div className="text-center py-20 text-gray-500">Loading community...</div>}>
+            <CommunityContent />
+        </Suspense>
     );
 }

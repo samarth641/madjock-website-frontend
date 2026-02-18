@@ -13,7 +13,7 @@ export default function Stories() {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
-    const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
+    const [selectedUserStories, setSelectedUserStories] = useState<Story[] | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchStories = async () => {
@@ -26,6 +26,18 @@ export default function Stories() {
             setLoading(false);
         }
     };
+
+    // Group stories by userId
+    const groupedStories = stories.reduce((acc: Record<string, Story[]>, story) => {
+        const userId = story.userId;
+        if (!acc[userId]) {
+            acc[userId] = [];
+        }
+        acc[userId].push(story);
+        return acc;
+    }, {});
+
+    const storyUsers = Object.keys(groupedStories);
 
     useEffect(() => {
         fetchStories();
@@ -111,52 +123,57 @@ export default function Stories() {
                     </div>
                 ))
             ) : (
-                stories.map((story, index) => (
-                    <div
-                        key={story._id || index}
-                        className={styles.storyCard}
-                        onClick={() => setSelectedStoryIndex(index)}
-                    >
-                        <div className={styles.storyMediaWrapper}>
-                            {story.media.type === 'video' ? (
-                                <video
-                                    src={`${story.media.url}#t=0.1`}
-                                    className={styles.storyMedia}
-                                    muted
-                                    playsInline
-                                />
-                            ) : (
+                storyUsers.map((userId) => {
+                    const userStories = groupedStories[userId];
+                    const latestStory = userStories[userStories.length - 1];
+
+                    return (
+                        <div
+                            key={userId}
+                            className={styles.storyCard}
+                            onClick={() => setSelectedUserStories(userStories)}
+                        >
+                            <div className={styles.storyMediaWrapper}>
+                                {latestStory.media.type === 'video' ? (
+                                    <video
+                                        src={`${latestStory.media.url}#t=0.1`}
+                                        className={styles.storyMedia}
+                                        muted
+                                        playsInline
+                                    />
+                                ) : (
+                                    <Image
+                                        src={latestStory.media.url}
+                                        alt={latestStory.userName}
+                                        fill
+                                        className={styles.storyMedia}
+                                        unoptimized
+                                    />
+                                )}
+                                <div className={styles.storyOverlay} />
+                            </div>
+                            <div className={styles.userAvatarWrapper}>
                                 <Image
-                                    src={story.media.url}
-                                    alt={story.userName}
-                                    fill
-                                    className={styles.storyMedia}
+                                    src={latestStory.userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(latestStory.userName)}&background=random`}
+                                    alt={latestStory.userName}
+                                    width={38}
+                                    height={38}
+                                    className={styles.userAvatar}
                                     unoptimized
                                 />
-                            )}
-                            <div className={styles.storyOverlay} />
+                            </div>
+                            <span className={styles.userName}>{latestStory.userName}</span>
                         </div>
-                        <div className={styles.userAvatarWrapper}>
-                            <Image
-                                src={story.userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(story.userName)}&background=random`}
-                                alt={story.userName}
-                                width={38}
-                                height={38}
-                                className={styles.userAvatar}
-                                unoptimized
-                            />
-                        </div>
-                        <span className={styles.userName}>{story.userName}</span>
-                    </div>
-                ))
+                    );
+                })
             )}
 
             {/* Viewer Modal */}
-            {selectedStoryIndex !== null && (
+            {selectedUserStories && (
                 <StoryViewer
-                    stories={stories}
-                    initialIndex={selectedStoryIndex}
-                    onClose={() => setSelectedStoryIndex(null)}
+                    stories={selectedUserStories}
+                    initialIndex={0}
+                    onClose={() => setSelectedUserStories(null)}
                 />
             )}
         </div>

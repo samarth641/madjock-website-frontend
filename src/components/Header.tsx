@@ -115,13 +115,103 @@ export default function Header() {
                                 </button>
                                 {showProfileMenu && (
                                     <div className={styles.profileMenu}>
-                                        <div className={styles.menuHeader}>
-                                            <p className={styles.menuName}>{user.name || 'User'}</p>
-                                            <p className={styles.menuPhone}>{user.phone}</p>
+                                        {/* User selection card */}
+                                        <Link
+                                            href={`/profile/${user.id || user._id}`}
+                                            className={styles.userCardLink}
+                                            onClick={() => setShowProfileMenu(false)}
+                                        >
+                                            <div className={styles.userCard}>
+                                                <Image
+                                                    src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                                                    alt={user.name || 'User'}
+                                                    width={40}
+                                                    height={40}
+                                                    className={styles.userCardAvatar}
+                                                    unoptimized
+                                                />
+                                                <div className={styles.userCardInfo}>
+                                                    <p className={styles.userCardName}>{user.name || 'User'}</p>
+                                                    <span className={styles.menuActionItemSubtext}>See your profile</span>
+                                                </div>
+                                            </div>
+                                            <div className={styles.userCardAction}>
+                                                <button className={styles.seeAllProfiles}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                        <circle cx="9" cy="7" r="4" />
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                                    </svg>
+                                                    See all profiles
+                                                </button>
+                                            </div>
+                                        </Link>
+
+                                        {/* Menu List */}
+                                        <div className={styles.menuSection}>
+                                            <Link href="/dashboard" className={styles.menuActionItem} onClick={() => setShowProfileMenu(false)}>
+                                                <div className={styles.menuIconWrapper}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+                                                    </svg>
+                                                </div>
+                                                <span className={styles.menuItemText}>Dashboard</span>
+                                                <svg className={styles.menuChevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="9 18 15 12 9 6" />
+                                                </svg>
+                                            </Link>
+
+                                            <Link href={`/profile/${user.id || user._id}?edit=true`} className={styles.menuActionItem} onClick={() => setShowProfileMenu(false)}>
+                                                <div className={styles.menuIconWrapper}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                    </svg>
+                                                </div>
+                                                <span className={styles.menuItemText}>Edit profile</span>
+                                                <svg className={styles.menuChevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="9 18 15 12 9 6" />
+                                                </svg>
+                                            </Link>
+
+                                            <button className={styles.menuActionItem} onClick={() => { /* Placeholder */ }}>
+                                                <div className={styles.menuIconWrapper}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                    </svg>
+                                                </div>
+                                                <span className={styles.menuItemText}>Help & support</span>
+                                                <svg className={styles.menuChevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="9 18 15 12 9 6" />
+                                                </svg>
+                                            </button>
+
+                                            <button className={styles.menuActionItem} onClick={logout}>
+                                                <div className={styles.menuIconWrapper}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                                        <polyline points="16 17 21 12 16 7" />
+                                                        <line x1="21" y1="12" x2="9" y2="12" />
+                                                    </svg>
+                                                </div>
+                                                <span className={styles.menuItemText}>Log out</span>
+                                            </button>
                                         </div>
-                                        <button className={styles.menuItem} onClick={logout}>
-                                            Logout
-                                        </button>
+
+                                        <div className={styles.menuFooter}>
+                                            <div className={styles.footerLinks}>
+                                                <Link href="/privacy-policy" className={styles.footerLink}>Privacy</Link> ·
+                                                <Link href="/terms-and-conditions" className={styles.footerLink}>Terms</Link> ·
+                                                <Link href="#" className={styles.footerLink}>Advertising</Link> ·
+                                                <Link href="#" className={styles.footerLink}>Ad choices</Link> ·
+                                                <Link href="#" className={styles.footerLink}>Cookies</Link> ·
+                                                <Link href="#" className={styles.footerLink}>More</Link>
+                                            </div>
+                                            <p style={{ marginTop: '8px', opacity: 0.6 }}>MadJock © 2026</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -165,6 +255,15 @@ export default function Header() {
                                     <span>{user.name || 'User'}</span>
                                     <span>{user.phone}</span>
                                 </div>
+                                <Link href={`/profile/${user.id || user._id}`} className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    My Profile
+                                </Link>
+                                <Link href={`/profile/${user.id || user._id}?edit=true`} className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    Edit Profile
+                                </Link>
+                                <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMobileMenuOpen(false)}>
+                                    Dashboard
+                                </Link>
                                 <button className={styles.mobileNavLink} onClick={() => { logout(); setMobileMenuOpen(false); }}>
                                     Logout
                                 </button>

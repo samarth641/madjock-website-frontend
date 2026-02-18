@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from '../Profile.module.css';
@@ -21,7 +21,15 @@ type TabType = 'posts' | 'videos' | 'threads' | 'polls' | 'businesses';
 export default function ProfilePage() {
     const { id } = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { user: currentUser } = useAuth();
+    const editMode = searchParams.get('edit') === 'true';
+
+    useEffect(() => {
+        if (editMode && currentUser?.id === id) {
+            setIsEditModalOpen(true);
+        }
+    }, [editMode, currentUser?.id, id]);
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -503,7 +511,15 @@ export default function ProfilePage() {
             {isEditModalOpen && profile && (
                 <EditProfileModal
                     isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        if (searchParams.get('edit')) {
+                            const newParams = new URLSearchParams(searchParams.toString());
+                            newParams.delete('edit');
+                            const qs = newParams.toString();
+                            router.replace(`/profile/${id}${qs ? `?${qs}` : ''}`, { scroll: false });
+                        }
+                    }}
                     profile={profile}
                     onUpdate={(updated) => setProfile(updated)}
                 />

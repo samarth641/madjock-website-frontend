@@ -81,6 +81,13 @@ export interface UserSnippet {
 export interface UserProfile extends UserSnippet {
     bio?: string;
     location?: string;
+    gender?: 'Male' | 'Female' | 'Other' | '';
+    dob?: string;
+    aadhaarNumber?: string;
+    aadhaarImage?: string;
+    pincode?: string;
+    email?: string;
+    country?: string;
     followersCount: number;
     followingCount: number;
     isFollowing?: boolean;

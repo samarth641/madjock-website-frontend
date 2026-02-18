@@ -158,7 +158,12 @@ export const getCategories = async (): Promise<Category[]> => {
     try {
         const response = await apiClient.get('/api/admin/alter/categories');
         const data = response.data.categories || response.data.data || response.data || [];
-        return Array.isArray(data) ? data : [];
+        const categories = Array.isArray(data) ? data : [];
+        // Normalize: backend uses 'name', but let's be safe
+        return categories.map((cat: any) => ({
+            ...cat,
+            name: cat.name || cat.categoryName || 'Unknown'
+        }));
     } catch (error) {
         console.warn('⚠️ Backend unavailable, using mock data for categories');
         return mockCategories;
@@ -169,7 +174,12 @@ export const getServices = async (): Promise<Service[]> => {
     try {
         const response = await apiClient.get('/api/admin/alter/services');
         const data = response.data.services || response.data.data || response.data || [];
-        return Array.isArray(data) ? data : [];
+        const services = Array.isArray(data) ? data : [];
+        // Normalize: backend uses 'service_name', frontend uses 'name'
+        return services.map((svc: any) => ({
+            ...svc,
+            name: svc.name || svc.service_name || 'Unknown'
+        }));
     } catch (error) {
         console.warn('⚠️ Backend unavailable, using mock data for services');
         return mockServices;
@@ -302,9 +312,10 @@ const transformPost = (data: any): Post => {
     };
 };
 
-export const getPosts = async (): Promise<Post[]> => {
+export const getPosts = async (lat?: number, lng?: number): Promise<Post[]> => {
     try {
-        const response = await apiClient.get('/api/community/all');
+        const url = lat && lng ? `/api/community/all?lat=${lat}&lng=${lng}` : '/api/community/all';
+        const response = await apiClient.get(url);
         const rawPosts = response.data.data || [];
         return rawPosts.map(transformPost);
     } catch (error: any) {
@@ -329,6 +340,10 @@ export interface CreatePostData {
         image?: string;
         video?: string;
         gif?: string;
+    };
+    autoLocation?: {
+        lat: number;
+        lng: number;
     };
     taggedUsers?: { userId: string; userName: string; avatarUrl?: string; }[];
     poll?: {

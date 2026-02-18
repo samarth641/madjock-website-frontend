@@ -64,31 +64,46 @@ export default function Dashboard() {
                 </div>
 
                 <div className={styles.grid}>
-                    {/* List Existing Businesses */}
-                    {businesses.map((business, index) => (
-                        <Link
-                            key={business._id || `biz-${index}`}
-                            href={`/businesses/${business._id}?edit=true`}
-                            className={styles.card}
-                        >
-                            <div className={styles.cardIcon}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                                </svg>
-                            </div>
-                            <div className={styles.cardContent}>
-                                <h2 className={styles.cardTitle}>{business.businessName}</h2>
-                                <p className={styles.cardSubtitle}>View or edit your business</p>
-                            </div>
-                            <div className={styles.cardFooter}>
-                                Manage Business
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </div>
-                        </Link>
-                    ))}
+                    {businesses.map((business, index) => {
+                        const imageUrl = business.logo || business.banner || (business.images && business.images[0]) || '/placeholder-business.jpg';
+                        const status = (business.status || 'pending').toLowerCase();
+
+                        return (
+                            <Link
+                                key={business._id || `biz-${index}`}
+                                href={`/businesses/${business._id}?edit=true`}
+                                className={styles.card}
+                            >
+                                <div className={styles.cardImageWrapper}>
+                                    <img src={imageUrl} alt={business.businessName} className={styles.cardImage} />
+                                    <div className={`${styles.statusBadge} ${status === 'approved' ? styles.statusApproved : styles.statusPending}`}>
+                                        {status === 'approved' ? 'Approved' : 'Under Review'}
+                                    </div>
+                                </div>
+
+                                <div className={styles.cardContent}>
+                                    <h2 className={styles.cardTitle}>{business.businessName}</h2>
+                                    <div className={styles.cardMeta}>
+                                        <span className={styles.cardCategory}>{business.businessCategory}</span>
+                                        {business.city && (
+                                            <span className={styles.cardLocation}>
+                                                • {business.city}, {business.state}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className={styles.cardDescription}>
+                                        {business.description || 'No description provided.'}
+                                    </p>
+                                </div>
+                                <div className={styles.cardFooter}>
+                                    Manage Business
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="9 18 15 12 9 6" />
+                                    </svg>
+                                </div>
+                            </Link>
+                        );
+                    })}
 
                     {/* Add New Business Card */}
                     <Link href="/dashboard/add-business" className={styles.addCard}>

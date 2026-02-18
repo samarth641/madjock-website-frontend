@@ -1,0 +1,151 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    background: #fff;
+    width: 100%;
+    max-width: 800px;
+    height: 90vh;
+    max-height: 800px;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.header {
+    background: #1a56db;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.backBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.searchContainer {
+    padding: 12px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.searchWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    color: #94a3b8;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+    border-color: #1a56db;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+.mapWrapper {
+    flex: 1;
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tooltip::before {
+    content: '📍';
+}
+
+.footer {
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+}
+
+.confirmBtn {
+    width: 100%;
+    background: #1a56db;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.confirmBtn:hover {
+    background: #1c4ed8;
+}
+
+.confirmBtn:active {
+    transform: scale(0.99);
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 1.1rem;
+    color: #64748b;
+}

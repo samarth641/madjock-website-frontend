@@ -53,8 +53,8 @@
     text-decoration: none;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    gap: 0;
+    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .card:hover {
@@ -110,37 +110,93 @@
     color: #008D41;
 }
 
-.cardIcon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #008D4115;
-    color: #008D41;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.cardImageWrapper {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+}
+
+.cardImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .cardImage {
+    transform: scale(1.05);
+}
+
+.statusBadge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.statusApproved {
+    background: #008D41;
+    color: white;
+}
+
+.statusPending {
+    background: #f59e0b;
+    color: white;
 }
 
 .cardContent {
+    padding: 20px;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .cardTitle {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     color: #1c1e21;
-    margin-bottom: 4px;
+    margin: 0;
 }
 
-.cardSubtitle {
+.cardMeta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #65676b;
+}
+
+.cardCategory {
+    color: #008D41;
+    font-weight: 600;
+}
+
+.cardDescription {
     font-size: 14px;
     color: #65676b;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-clamp: 2;
 }
 
 .cardFooter {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-top: 1px solid #f0f2f5;
     font-weight: 600;
     color: #008D41;
     font-size: 14px;

@@ -8,7 +8,11 @@ import { getStories, createStory, uploadCommunityMedia } from '@/lib/api';
 import { Story } from '@/types';
 import StoryViewer from './StoryViewer';
 
-export default function Stories() {
+interface StoriesProps {
+    onLoginReq?: () => void;
+}
+
+export default function Stories({ onLoginReq }: StoriesProps) {
     const { user } = useAuth();
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,6 +48,10 @@ export default function Stories() {
     }, []);
 
     const handleAddStorySource = () => {
+        if (!user) {
+            if (onLoginReq) onLoginReq();
+            return;
+        }
         fileInputRef.current?.click();
     };
 

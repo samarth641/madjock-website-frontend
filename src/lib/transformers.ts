@@ -20,6 +20,7 @@ export function transformBusinessData(apiData: any): Business {
 
         // Address info - prefer businessLocation, fallback to streetAddresses
         address: data.address || data.businessLocation || data.streetAddresses?.[0] || '',
+        streetAddresses: Array.isArray(data.streetAddresses) ? data.streetAddresses : [data.address || data.businessLocation].filter(Boolean),
         city: data.city || '',
         state: data.state || '',
         pincode: data.pincode || data.pinCode || '',
@@ -32,8 +33,10 @@ export function transformBusinessData(apiData: any): Business {
 
         // Social media links
         websiteLink: Array.isArray(data.websiteLink) ? data.websiteLink[0] : data.websiteLink || '',
+        websiteLinks: Array.isArray(data.websiteLink) ? data.websiteLink : [data.websiteLink].filter(Boolean),
         facebookLink: data.facebookLink || '',
         instagramLink: data.instagramLink || data.instagramProfileLink || '',
+        twitterLink: data.twitterLink || data.twitterAccountLink || '',
 
         // Social media flags
         facebook: data.facebookProfile ? 'YES' : 'NO',

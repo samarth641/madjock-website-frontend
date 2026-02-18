@@ -16,12 +16,20 @@ export default function BusinessCard({ business }: BusinessCardProps) {
             <div className={styles.imageWrapper}>
                 <img src={imageUrl} alt={business.businessName} className={styles.image} />
                 {business.status === 'approved' && (
-                    <div className={styles.badge}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
+                    <div className={`${styles.badge} ${styles.activeBadge}`}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <polyline points="20 6 9 17 4 12" />
                         </svg>
-                        Verified
+                        Active
+                    </div>
+                )}
+                {business.status === 'pending' && (
+                    <div className={`${styles.badge} ${styles.pendingBadge}`}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Under Review
                     </div>
                 )}
             </div>

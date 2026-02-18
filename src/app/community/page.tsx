@@ -30,7 +30,22 @@ function CommunityContent() {
     const fetchPosts = async () => {
         setLoading(true);
         try {
-            const data = await getPosts();
+            let lat, lng;
+            if (navigator.geolocation) {
+                try {
+                    const position: any = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 5000,
+                            maximumAge: 300000 // 5 minutes cache
+                        });
+                    });
+                    lat = position.coords.latitude;
+                    lng = position.coords.longitude;
+                } catch (err) {
+                    console.warn('Feed location detection failed:', err);
+                }
+            }
+            const data = await getPosts(lat, lng);
             setPosts(data);
         } catch (error) {
             console.error('Error fetching posts:', error);
@@ -128,7 +143,7 @@ function CommunityContent() {
                 <div className={styles.feed}>
                     {!searchResults && (
                         <>
-                            <Stories />
+                            <Stories onLoginReq={handleLoginReq} />
                             <CreatePostWidget
                                 onPostCreated={fetchPosts}
                                 onLoginReq={handleLoginReq}

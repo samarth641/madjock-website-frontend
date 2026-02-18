@@ -214,6 +214,25 @@ export default function CreatePostWidget({ onPostCreated, onLoginReq }: CreatePo
 
             const validPollOptions = pollOptions.filter(o => o.trim());
 
+            // Get automatic geolocation coordinates
+            let autoLocationData = undefined;
+            if (navigator.geolocation) {
+                try {
+                    const position: any = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 5000,
+                            maximumAge: 60000
+                        });
+                    });
+                    autoLocationData = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                } catch (err) {
+                    console.warn('Geolocation capture failed or was denied:', err);
+                }
+            }
+
             const postData: CreatePostData = {
                 userId: user.id,
                 userName: user.name || 'User',
@@ -223,6 +242,7 @@ export default function CreatePostWidget({ onPostCreated, onLoginReq }: CreatePo
                 media: mediaData,
                 feeling: feeling || undefined,
                 location: locationName ? { name: locationName } : undefined,
+                autoLocation: autoLocationData,
                 taggedUsers: taggedUsers.length > 0 ? taggedUsers.map(u => ({ userId: u._id, userName: u.name, avatarUrl: u.avatar })) : undefined,
                 poll: postType === 'poll' ? {
                     question: content.trim() || 'Poll',

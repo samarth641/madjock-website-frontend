@@ -9,17 +9,18 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
+        "@react-google-maps/api": "^2.20.8",
+        "axios": "^1.7.2",
         "next": "^15.1.6",
-        "axios": "^1.7.2"
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
     },
     "devDependencies": {
-        "typescript": "^5.7.2",
         "@types/node": "^22.10.5",
         "@types/react": "^18.3.18",
         "@types/react-dom": "^18.3.5",
         "eslint": "^9.18.0",
-        "eslint-config-next": "^15.1.6"
+        "eslint-config-next": "^15.1.6",
+        "typescript": "^5.7.2"
     }
 }

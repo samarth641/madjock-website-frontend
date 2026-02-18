@@ -13,8 +13,11 @@ export interface Business {
     noOfEmployee: number;
     establishedIn: string;
     websiteLink?: string;
+    websiteLinks?: string[];
     facebookLink?: string;
     instagramLink?: string;
+    twitterLink?: string;
+    streetAddresses?: string[];
     facebook: 'YES' | 'NO';
     instagram: 'YES' | 'NO';
     twitter: 'YES' | 'NO';

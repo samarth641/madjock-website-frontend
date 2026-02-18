@@ -118,15 +118,23 @@ export default function ProfilePage() {
     const renderThumbnail = (post: Post) => {
         // Priority 1: Video
         if (post.type === 'video' || post.video) {
+            const videoUrl = post.video || '';
+            // Using #t=0.5 helps avoid black frames by starting slightly into the video
+            const thumbUrl = videoUrl ? `${videoUrl}#t=0.5` : '';
+
             return (
                 <>
-                    <Image
-                        src={`https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=2059&auto=format&fit=crop`}
-                        alt="Video thumbnail"
-                        fill
-                        className={styles.thumbnailImage}
-                        unoptimized
-                    />
+                    {videoUrl ? (
+                        <video
+                            src={thumbUrl}
+                            className={styles.thumbnailImage}
+                            preload="metadata"
+                            muted
+                            playsInline
+                        />
+                    ) : (
+                        <div className={styles.textThumbnail}>Video Unavailable</div>
+                    )}
                     <div className={styles.reelIndicator}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polygon points="23 7 16 12 23 17 23 7"></polygon>

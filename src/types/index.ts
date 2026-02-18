@@ -132,3 +132,16 @@ export interface Post {
     updatedAt: string;
     likedByMe?: boolean; // Helper for UI
 }
+
+export interface Story {
+    _id: string;
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    media: {
+        url: string;
+        type: 'image' | 'video';
+    };
+    expiresAt: string;
+    createdAt: string;
+}

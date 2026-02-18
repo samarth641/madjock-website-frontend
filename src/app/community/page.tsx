@@ -9,6 +9,7 @@ import CreatePostWidget from '@/components/community/CreatePostWidget';
 import LoginModal from '@/components/LoginModal';
 import CommunityHeader from '@/components/community/CommunityHeader';
 import UsersModal from '@/components/community/UsersModal';
+import Stories from '@/components/community/Stories';
 import { getPosts, searchCommunity } from '@/lib/api';
 import { Post } from '@/types';
 import { useAuth } from '@/context/AuthContext';
@@ -126,10 +127,13 @@ function CommunityContent() {
                 {/* Center Feed */}
                 <div className={styles.feed}>
                     {!searchResults && (
-                        <CreatePostWidget
-                            onPostCreated={fetchPosts}
-                            onLoginReq={handleLoginReq}
-                        />
+                        <>
+                            <Stories />
+                            <CreatePostWidget
+                                onPostCreated={fetchPosts}
+                                onLoginReq={handleLoginReq}
+                            />
+                        </>
                     )}
 
                     {loading ? (

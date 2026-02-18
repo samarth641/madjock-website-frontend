@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Business, Slider, Category, ApiResponse, SearchParams, Post, UserSnippet, CommunityComment, Poll, Service, UserProfile } from '../types';
+import { Business, Slider, Category, ApiResponse, SearchParams, Post, UserSnippet, CommunityComment, Poll, Service, UserProfile, Story } from '../types';
 
 import { mockBusinesses, mockCategories, mockServices } from './mockData';
 import { transformBusinessArray } from './transformers';
@@ -542,3 +542,23 @@ export const updateUserProfile = async (userId: string, data: any): Promise<bool
     }
 };
 
+// Story APIs
+export const getStories = async (): Promise<Story[]> => {
+    try {
+        const response = await apiClient.get('/api/stories');
+        return response.data.data || [];
+    } catch (error) {
+        console.error('❌ Error fetching stories:', error);
+        return [];
+    }
+};
+
+export const createStory = async (storyData: Partial<Story>): Promise<Story | null> => {
+    try {
+        const response = await apiClient.post('/api/stories', storyData);
+        return response.data.data || null;
+    } catch (error) {
+        console.error('❌ Error creating story:', error);
+        throw error;
+    }
+};
